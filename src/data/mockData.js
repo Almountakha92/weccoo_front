@@ -1,0 +1,271 @@
+// Mock data for the application
+
+export const mockUsers = [
+  {
+    id: 1,
+    name: 'Sophie Martin',
+    email: 'sophie.martin@univ-paris.fr',
+    university: 'Université Paris-Sorbonne',
+    avatar: 'https://images.unsplash.com/photo-1561065533-316e3142d586?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=200&q=80',
+    bio: 'Étudiante en Lettres Modernes. Passionnée de lecture et d\'échanges culturels.',
+    rating: 4.8,
+    reviewCount: 24,
+    itemsShared: 18,
+    joinedDate: '2024-09-15',
+  },
+  {
+    id: 2,
+    name: 'Thomas Dubois',
+    email: 'thomas.dubois@univ-lyon.fr',
+    university: 'Université Lyon 1',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=200&q=80',
+    bio: 'Étudiant en informatique, toujours prêt à partager du matériel tech.',
+    rating: 4.9,
+    reviewCount: 32,
+    itemsShared: 25,
+    joinedDate: '2024-06-20',
+  },
+  {
+    id: 3,
+    name: 'Emma Rousseau',
+    email: 'emma.rousseau@univ-bordeaux.fr',
+    university: 'Université de Bordeaux',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=200&q=80',
+    bio: 'Passionnée de biologie et d\'écologie. Réduisons notre empreinte ensemble!',
+    rating: 5.0,
+    reviewCount: 18,
+    itemsShared: 12,
+    joinedDate: '2025-01-10',
+  },
+  {
+    id: 4,
+    name: 'Lucas Moreau',
+    email: 'lucas.moreau@univ-toulouse.fr',
+    university: 'Université Toulouse III',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=200&q=80',
+    bio: 'Étudiant en médecine. Amateur de sport et de partage.',
+    rating: 4.7,
+    reviewCount: 15,
+    itemsShared: 9,
+    joinedDate: '2025-02-01',
+  },
+];
+
+export const mockItems = [
+  {
+    id: 1,
+    title: 'Calcul intégral - Livre de mathématiques',
+    description: 'Livre de mathématiques niveau licence 2. Très bon état, quelques annotations au crayon. Parfait pour réviser les examens.',
+    category: 'Livres',
+    type: 'don',
+    condition: 'Très bon état',
+    image: 'https://images.unsplash.com/photo-1588912914017-923900a34710?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[0],
+    location: 'Paris 5e - Campus Jussieu',
+    createdAt: '2026-01-10',
+    images: [
+      'https://images.unsplash.com/photo-1588912914017-923900a34710?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+      'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+  {
+    id: 2,
+    title: 'MacBook Pro 13" 2019',
+    description: 'MacBook Pro en excellent état. Idéal pour le montage vidéo et la programmation. Cherche à échanger contre un iPad Pro ou un PC portable gaming.',
+    category: 'Électronique',
+    type: 'échange',
+    condition: 'Très bon état',
+    image: 'https://images.unsplash.com/flagged/photo-1576697010739-6373b63f3204?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[1],
+    location: 'Lyon 7e - Campus Gerland',
+    createdAt: '2026-01-12',
+    images: [
+      'https://images.unsplash.com/flagged/photo-1576697010739-6373b63f3204?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+  {
+    id: 3,
+    title: 'Sac à dos Eastpak noir',
+    description: 'Grand sac à dos en très bon état. Plusieurs compartiments. Je le prête pour la période des examens si besoin.',
+    category: 'Accessoires',
+    type: 'prêt',
+    condition: 'Bon état',
+    image: 'https://images.unsplash.com/photo-1713270395909-9760de498896?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[2],
+    location: 'Bordeaux - Campus Talence',
+    createdAt: '2026-01-13',
+    images: [
+      'https://images.unsplash.com/photo-1713270395909-9760de498896?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+  {
+    id: 4,
+    title: 'Lampe de bureau LED',
+    description: 'Lampe de bureau moderne avec variateur d\'intensité. Parfaite pour les longues soirées de révision. Je la donne car j\'en ai reçu une nouvelle.',
+    category: 'Mobilier',
+    type: 'don',
+    condition: 'Neuf',
+    image: 'https://images.unsplash.com/photo-1700627565641-bd6b7890befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[3],
+    location: 'Toulouse - Campus Rangueil',
+    createdAt: '2026-01-14',
+    images: [
+      'https://images.unsplash.com/photo-1700627565641-bd6b7890befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+  {
+    id: 5,
+    title: 'Cours de chimie organique L3',
+    description: 'Polycopiés de chimie organique complets avec exercices corrigés. Année 2025-2026.',
+    category: 'Livres',
+    type: 'don',
+    condition: 'Très bon état',
+    image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[2],
+    location: 'Bordeaux - Campus Talence',
+    createdAt: '2026-01-08',
+    images: [
+      'https://images.unsplash.com/photo-1532012197267-da84d127e765?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+  {
+    id: 6,
+    title: 'Calculatrice scientifique TI-83',
+    description: 'Calculatrice graphique en parfait état de marche. Plus besoin depuis que je suis passé en M2. À échanger contre des livres de psychologie.',
+    category: 'Fournitures',
+    type: 'échange',
+    condition: 'Bon état',
+    image: 'https://images.unsplash.com/photo-1611348524140-53c9a25263d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    owner: mockUsers[0],
+    location: 'Paris 5e - Campus Jussieu',
+    createdAt: '2026-01-11',
+    images: [
+      'https://images.unsplash.com/photo-1611348524140-53c9a25263d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800&q=80',
+    ],
+  },
+];
+
+export const mockConversations = [
+  {
+    id: 1,
+    user: mockUsers[1],
+    lastMessage: 'Super! On se retrouve à la BU demain à 14h?',
+    timestamp: '2026-01-14T10:30:00',
+    unread: 2,
+    itemId: 1,
+  },
+  {
+    id: 2,
+    user: mockUsers[2],
+    lastMessage: 'Merci beaucoup pour le prêt!',
+    timestamp: '2026-01-14T09:15:00',
+    unread: 0,
+    itemId: 3,
+  },
+  {
+    id: 3,
+    user: mockUsers[3],
+    lastMessage: 'Est-ce que la lampe est toujours disponible?',
+    timestamp: '2026-01-13T16:45:00',
+    unread: 1,
+    itemId: 4,
+  },
+];
+
+export const mockMessages = {
+  1: [
+    {
+      id: 1,
+      senderId: 2,
+      text: 'Bonjour! Je suis intéressé par ton livre de mathématiques.',
+      timestamp: '2026-01-14T09:00:00',
+    },
+    {
+      id: 2,
+      senderId: 1,
+      text: 'Salut! Oui il est toujours disponible. Tu es sur quel campus?',
+      timestamp: '2026-01-14T09:15:00',
+    },
+    {
+      id: 3,
+      senderId: 2,
+      text: 'Je suis à Jussieu aussi. On peut se voir cette semaine?',
+      timestamp: '2026-01-14T09:30:00',
+    },
+    {
+      id: 4,
+      senderId: 1,
+      text: 'Parfait! Demain ça te va?',
+      timestamp: '2026-01-14T10:00:00',
+    },
+    {
+      id: 5,
+      senderId: 2,
+      text: 'Super! On se retrouve à la BU demain à 14h?',
+      timestamp: '2026-01-14T10:30:00',
+    },
+  ],
+  2: [
+    {
+      id: 1,
+      senderId: 3,
+      text: 'Salut! Ton sac à dos m\'intéresse pour la semaine prochaine.',
+      timestamp: '2026-01-13T14:00:00',
+    },
+    {
+      id: 2,
+      senderId: 1,
+      text: 'Pas de souci, je te le prête avec plaisir!',
+      timestamp: '2026-01-13T14:30:00',
+    },
+    {
+      id: 3,
+      senderId: 3,
+      text: 'Merci beaucoup pour le prêt!',
+      timestamp: '2026-01-14T09:15:00',
+    },
+  ],
+  3: [
+    {
+      id: 1,
+      senderId: 4,
+      text: 'Est-ce que la lampe est toujours disponible?',
+      timestamp: '2026-01-13T16:45:00',
+    },
+  ],
+};
+
+export const mockReviews = [
+  {
+    id: 1,
+    author: mockUsers[1],
+    rating: 5,
+    comment: 'Échange parfait! Sophie est très sympathique et arrangeante. Le livre était en excellent état.',
+    date: '2026-01-05',
+  },
+  {
+    id: 2,
+    author: mockUsers[2],
+    rating: 5,
+    comment: 'Super expérience! Communication facile et rapide. Je recommande!',
+    date: '2025-12-20',
+  },
+  {
+    id: 3,
+    author: mockUsers[3],
+    rating: 4,
+    comment: 'Très bon contact, objet conforme à la description.',
+    date: '2025-12-10',
+  },
+];
+
+export const categories = [
+  { id: 'livres', name: 'Livres', icon: '📚' },
+  { id: 'electronique', name: 'Électronique', icon: '💻' },
+  { id: 'fournitures', name: 'Fournitures', icon: '✏️' },
+  { id: 'vetements', name: 'Vêtements', icon: '👕' },
+  { id: 'mobilier', name: 'Mobilier', icon: '🪑' },
+  { id: 'accessoires', name: 'Accessoires', icon: '🎒' },
+  { id: 'sport', name: 'Sport', icon: '⚽' },
+  { id: 'autre', name: 'Autre', icon: '📦' },
+];

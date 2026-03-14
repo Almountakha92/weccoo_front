@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800&family=Satoshi:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --green: #2ECC8F;
+  --green-dark: #1DA870;
+  --green-light: #E8FAF3;
+  --green-mid: #A8EDD3;
+  --blue: #3B82F6;
+  --navy: #0F172A;
+  --gray-900: #1E293B;
+  --gray-700: #334155;
+  --gray-500: #64748B;
+  --gray-300: #CBD5E1;
+  --gray-100: #F1F5F9;
+  --white: #FFFFFF;
+  --amber: #F59E0B;
+  --rose: #F43F5E;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Satoshi', sans-serif;
+  background: #E8FAF3;
+  color: var(--navy);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Animation for pulse */
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 143, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(46, 204, 143, 0);
+  }
+}
+
+/* Bounce animation for mobile nav */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Font families */
+.font-\[Cabinet_Grotesk\] {
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+.font-\[Satoshi\] {
+  font-family: 'Satoshi', sans-serif;
+}
+
+/* Custom utilities */
+/* Gradient removed - using solid colors */
+
+/* Fix for the bottom nav on mobile */
+@media (max-width: 1023px) {
+  .bottom-nav {
+    display: flex;
+  }
+  
+  main {
+    padding-bottom: 80px;
+  }
+}
+
+/* Hide sidebar on mobile */
+@media (max-width: 1023px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+/* Show sidebar on desktop */
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none;
+  }
+}
