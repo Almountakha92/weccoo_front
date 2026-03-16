@@ -1,5 +1,5 @@
 import React from 'react'
-import { Home, Search, Plus, MessageSquare, User } from 'lucide-react'
+import { Home, Search, Plus, User } from 'lucide-react'
 
 interface BottomNavProps {
   activeScreen: string
@@ -11,7 +11,6 @@ export default function BottomNav({ activeScreen, onNavigate }: BottomNavProps) 
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'list', label: 'Explorer', icon: Search },
     { id: 'publish', label: '', icon: Plus, isAction: true },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
     { id: 'profile', label: 'Profil', icon: User },
   ]
 
