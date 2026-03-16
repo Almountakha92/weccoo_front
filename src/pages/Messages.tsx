@@ -74,7 +74,7 @@ export default function Messages({ authUser, items, onShowToast }: MessagesProps
   }
 
   return (
-    <div className="bg-gray-100 flex h-screen max-lg:h-auto max-lg:min-h-screen max-md:pb-24">
+    <div className="bg-gray-100 flex min-h-[100dvh] lg:h-screen max-md:pb-24">
       {/* Sidebar */}
       <div className="w-[320px] bg-white border-r border-gray-100 flex flex-col h-full shrink-0 max-lg:hidden">
         <div className="p-7 pb-5 border-b border-gray-100">
@@ -120,8 +120,38 @@ export default function Messages({ authUser, items, onShowToast }: MessagesProps
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col bg-[#F8FFFE]">
+        {/* Conversations (mobile) */}
+        <div className="lg:hidden bg-white border-b border-gray-100 px-4 py-3 overflow-x-auto">
+          <div className="flex items-center gap-2.5">
+            {conversations.map((conv) => {
+              const isActive = activeConv === conv.id
+              const conversationItem = items.find((item) => item.id === conv.itemId)
+              return (
+                <button
+                  key={conv.id}
+                  type="button"
+                  onClick={() => setActiveConv(conv.id)}
+                  className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-full border text-[12.5px] font-bold transition-colors ${
+                    isActive
+                      ? 'bg-[#E8FAF3] border-[#2ECC8F] text-[#1DA870]'
+                      : 'bg-white border-gray-200 text-gray-600'
+                  }`}
+                  title={conversationItem?.title ?? `Conversation ${conv.id.slice(0, 6)}`}
+                >
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold ${avatarClasses[conv.id.length % avatarClasses.length]}`}>
+                    {conv.participantIds.find((participantId) => participantId !== authUser?.id)?.slice(0, 2).toUpperCase() ?? '??'}
+                  </span>
+                  <span className="max-w-[160px] truncate">
+                    {conversationItem?.title ?? `Conv. ${conv.id.slice(0, 6)}`}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {/* Header */}
-        <div className="p-5 bg-white border-b border-gray-100 flex items-center gap-3.5">
+        <div className="p-4 sm:p-5 bg-white border-b border-gray-100 flex items-center gap-3.5">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${avatarClasses[0]}`}>
             {currentConv?.participantIds.find((participantId) => participantId !== authUser?.id)?.slice(0, 2).toUpperCase() ?? '??'}
           </div>
@@ -132,18 +162,18 @@ export default function Messages({ authUser, items, onShowToast }: MessagesProps
               Conversation active
             </div>
           </div>
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-[#E8FAF3] rounded-[12px] text-[13px] text-[#1DA870] font-semibold">
+          <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 bg-[#E8FAF3] rounded-[12px] text-[13px] text-[#1DA870] font-semibold">
             <span>{currentItem?.category ?? 'Objet'}</span>
             <span className="bg-[#D1FAE5] text-[#065F46] px-2 py-0.5 rounded-[10px] text-[11px]">{currentItem?.type ?? 'n/a'}</span>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-7 flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-7 flex flex-col gap-4">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex flex-col gap-1 ${msg.senderId === authUser?.id ? 'items-end' : 'items-start'}`}>
               <div
-                className={`max-w-[68%] px-4 py-3 rounded-[20px] text-[14px] leading-relaxed ${
+                className={`max-w-[85%] sm:max-w-[68%] px-4 py-3 rounded-[20px] text-[14px] leading-relaxed ${
                   msg.senderId === authUser?.id
                     ? 'bg-[#2ECC8F] text-white rounded-br-[6px]'
                     : 'bg-white text-[#0F172A] rounded-bl-[6px] shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
@@ -157,7 +187,7 @@ export default function Messages({ authUser, items, onShowToast }: MessagesProps
         </div>
 
         {/* Input */}
-        <div className="p-5 bg-white border-t border-gray-100 flex items-center gap-3">
+        <div className="p-4 sm:p-5 bg-white border-t border-gray-100 flex items-center gap-3">
           <div className="flex-1 flex items-center gap-2.5 bg-gray-100 rounded-full px-5 py-3 border-2 border-transparent focus-within:border-[#2ECC8F] focus-within:bg-white transition-all duration-180">
             <input
               type="text"

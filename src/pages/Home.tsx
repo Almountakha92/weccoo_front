@@ -207,7 +207,7 @@ export default function Home({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-9 max-md:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-9">
         <div className="bg-white rounded-[20px] p-6 flex items-center gap-4 shadow-[0_4px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-transform duration-200">
           <div className="w-12 h-12 rounded-4 bg-[#FEF3C7] flex items-center justify-center">
             <Package className="w-6 h-6 text-[#F5C400]" />
@@ -229,7 +229,7 @@ export default function Home({
         <button
           type="button"
           onClick={() => onNavigate('profile')}
-          className="bg-white rounded-[20px] p-6 flex items-center gap-4 shadow-[0_4px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-transform duration-200 max-md:col-span-2 cursor-pointer text-left"
+          className="bg-white rounded-[20px] p-6 flex items-center gap-4 shadow-[0_4px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-transform duration-200 sm:col-span-2 lg:col-span-1 cursor-pointer text-left"
           title="Voir mes publications"
         >
           <div className="w-12 h-12 rounded-4 bg-[#FEF3C7] flex items-center justify-center">

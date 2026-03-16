@@ -108,8 +108,8 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
   }
 
   return (
-    <div className="bg-[#F2F2F2] min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white rounded-[28px] p-12 w-full max-w-[440px] shadow-[0_8px_40px_rgba(15,23,42,0.12)] border border-[#E5E7EB]">
+    <div className="bg-[#F2F2F2] min-h-screen flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white rounded-[28px] p-6 sm:p-12 w-full max-w-[440px] shadow-[0_8px_40px_rgba(15,23,42,0.12)] border border-[#E5E7EB]">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-[60px] h-[60px] bg-white rounded-[18px] flex items-center justify-center mx-auto mb-3.5 shadow-[0_8px_32px_rgba(30,99,214,0.25)] overflow-hidden border border-[#E5E7EB]">

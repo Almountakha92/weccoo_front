@@ -201,15 +201,15 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
   }
 
   return (
-    <div className="bg-gray-100 w-full h-full p-9 max-lg:p-5 max-md:pb-24 border-t-4 border-[#1E63D6] flex  flex-col items-center">
+    <div className="bg-gray-100 w-full h-full p-9 max-lg:p-5 max-md:pb-24 border-t-4 border-[#1E63D6] flex flex-col items-center">
       {/* Header */}
-      <div className="mb-7">
+      <div className="mb-7 w-full max-w-2xl">
         <h2 className="font-[Cabinet_Grotesk] text-[28px] font-extrabold text-[#0F172A] mb-1">Publier un objet</h2>
         <p className="text-[14.5px] text-gray-500">Donne une seconde vie à tes affaires en 3 étapes</p>
       </div>
 
       {/* Progress Steps */}
-      <div className="flex gap-0 w-[50%] border-b border-gray-200 pb-6 flex-wrap">
+      <div className="flex gap-0 w-full max-w-2xl border-b border-gray-200 pb-6 flex-wrap">
         <div className="flex-1 text-center">
           <div className="w-9 h-9 rounded-full bg-[#1E63D6] text-white font-extrabold text-[15px] flex items-center justify-center mx-auto mb-2">1</div>
           <div className="text-[12px] font-bold text-[#1E63D6]">Photos</div>
@@ -227,11 +227,11 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-[20px] p-8 w-[50%]  shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
+      <div className="bg-white rounded-[20px] p-6 sm:p-8 w-full max-w-2xl shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
         {/* Photo Upload */}
         <div
           onClick={() => filePickerRef.current?.click()}
-          className={`border-2 border-dashed rounded-[20px] p-10 text-center cursor-pointer transition-all duration-200 hover:border-[#1E63D6] hover:bg-[#E8FAF3] mb-2 ${
+          className={`border-2 border-dashed rounded-[20px] p-6 sm:p-10 text-center cursor-pointer transition-all duration-200 hover:border-[#1E63D6] hover:bg-[#E8FAF3] mb-2 ${
             photoError ? 'border-rose-400 bg-rose-50/40' : 'border-gray-300'
           }`}
         >

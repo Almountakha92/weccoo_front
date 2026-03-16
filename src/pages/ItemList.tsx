@@ -136,18 +136,18 @@ export default function ItemList({ items, likedItemIds, isLoading, onSelectItem,
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent border-none outline-none text-[14.5px] text-[#0F172A] font-['Satoshi'] placeholder:text-gray-500"
           />
-          <span className="text-gray-400 text-sm">⌘K</span>
+          <span className="hidden sm:inline text-gray-400 text-sm">⌘K</span>
         </div>
 
         {/* Filters */}
-        <div className=" w-full h-10 flex flex-wrap gap-1.5">
+        <div className="w-full flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
           {filters.map((filter) => {
             const Icon = filter.icon
             return (
               <button
                 key={filter.id}
                 onClick={() => toggleFilter(filter.id)}
-                className={`flex items-center gap-1.5 px-4 py-1.75 rounded-full text-[13px] font-semibold cursor-pointer border-[1.5px] transition-all duration-180 font-['Satoshi'] ${
+                className={`flex shrink-0 items-center gap-1.5 px-4 py-1.75 rounded-full text-[13px] font-semibold cursor-pointer border-[1.5px] transition-all duration-180 font-['Satoshi'] whitespace-nowrap ${
                   activeFilter === filter.id
                     ? 'bg-[#1E63D6] border-[#1E63D6] text-white'
                     : 'bg-white border-gray-300 text-gray-700 hover:border-[#1E63D6] hover:text-[#1E63D6]'

@@ -16,7 +16,7 @@ export default function BottomNav({ activeScreen, onNavigate }: BottomNavProps) 
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pb-5 pt-3 z-40 flex justify-around lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3 z-40 flex justify-around lg:hidden">
       {navItems.map((item) => (
         <button
           key={item.id}
