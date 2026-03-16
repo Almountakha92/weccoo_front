@@ -115,39 +115,39 @@ export default function ItemList({ items, likedItemIds, isLoading, onSelectItem,
   const countLabel = count <= 1 ? 'objet' : 'objets'
 
   return (
-    <div className="bg-gray-100 min-h-screen p-9 max-lg:p-5 max-md:pb-24">
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-5 lg:p-9 max-md:pb-24">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="font-[Cabinet_Grotesk] text-[28px] font-extrabold text-[#0F172A] mb-1">Explorer les objets</h2>
-        <p className="text-[14.5px] text-gray-500">
+        <h2 className="font-[Cabinet_Grotesk] text-[22px] sm:text-[28px] font-extrabold text-[#0F172A] mb-1">Explorer les objets</h2>
+        <p className="text-[13.5px] sm:text-[14.5px] text-gray-500">
           {isLoading ? 'Chargement des objets...' : `${formatCount(count)} ${countLabel} disponibles autour de toi`}
         </p>
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white border border-green-300 rounded-[20px] p-6 mb-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
+      <div className="bg-white border border-gray-200 rounded-[20px] p-4 sm:p-6 mb-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
         {/* Search Bar */}
-        <div className="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-3 mb-4.5 border-2 border-transparent focus-within:border-[#1E63D6] focus-within:bg-white transition-all duration-180 mb-4">
-          <Search className="w-5 h-5 text-gray-500" />
+        <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 border-2 border-transparent focus-within:border-[#1E63D6] focus-within:bg-white transition-all duration-180 mb-4">
+          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
           <input
             type="text"
             placeholder="Rechercher un objet, une catégorie…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-[14.5px] text-[#0F172A] font-['Satoshi'] placeholder:text-gray-500"
+            className="flex-1 bg-transparent border-none outline-none text-[14px] sm:text-[14.5px] text-[#0F172A] font-['Satoshi'] placeholder:text-gray-500"
           />
           <span className="hidden sm:inline text-gray-400 text-sm">⌘K</span>
         </div>
 
         {/* Filters */}
-        <div className="w-full flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
+        <div className="no-scrollbar w-full flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 lg:flex-wrap lg:overflow-visible snap-x snap-mandatory">
           {filters.map((filter) => {
             const Icon = filter.icon
             return (
               <button
                 key={filter.id}
                 onClick={() => toggleFilter(filter.id)}
-                className={`flex shrink-0 items-center gap-1.5 px-4 py-1.75 rounded-full text-[13px] font-semibold cursor-pointer border-[1.5px] transition-all duration-180 font-['Satoshi'] whitespace-nowrap ${
+                className={`snap-start flex shrink-0 items-center gap-1.5 px-4 py-1.75 rounded-full text-[13px] font-semibold cursor-pointer border-[1.5px] transition-all duration-180 font-['Satoshi'] whitespace-nowrap ${
                   activeFilter === filter.id
                     ? 'bg-[#1E63D6] border-[#1E63D6] text-white'
                     : 'bg-white border-gray-300 text-gray-700 hover:border-[#1E63D6] hover:text-[#1E63D6]'
