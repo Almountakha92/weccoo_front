@@ -1,6 +1,7 @@
 import React from 'react'
 import { Package, Users, ArrowRight, Plus, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, Heart, MapPin, Search, Bell, BellOff } from 'lucide-react'
 import type { AuthResponseDto, ItemResponseDto } from '../dto'
+import BrandMark from '../components/BrandMark'
 
 interface HomeProps {
   authUser: AuthResponseDto['user'] | null
@@ -118,9 +119,10 @@ export default function Home({
   }, [authUser?.id, items])
 
   return (
-<div className="bg-[#F8FAFC] min-h-screen p-9 max-lg:p-5 max-md:pb-24">
-      {authUser && (
-        <div className="flex justify-end mb-3">
+    <div className="bg-[#F8FAFC] min-h-screen p-9 max-lg:p-5 max-md:pb-24">
+      <div className="flex items-center justify-between mb-4">
+        <BrandMark size="sm" />
+        {authUser ? (
           <button
             type="button"
             onClick={() => onOpenNotifications()}
@@ -138,8 +140,10 @@ export default function Home({
               </span>
             )}
           </button>
-        </div>
-      )}
+        ) : (
+          <div />
+        )}
+      </div>
       {/* Hero */}
       <div className="bg-[#1E63D6] rounded-[28px] p-12 flex items-center justify-between gap-10 mb-9 relative overflow-hidden max-md:flex-col max-md:p-8">
         {/* Background decoration */}

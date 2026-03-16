@@ -5,6 +5,7 @@ import { login, signup, verifyUniversityEmail } from '../services/authApi'
 import { API_BASE_URL } from '../config/api'
 import { setAuthToken, setAuthUser } from '../services/authToken'
 import { signupSchema } from '../validation/auth.schema'
+import BrandMark from '../components/BrandMark'
 
 interface AuthProps {
   onNavigate: (screen: string) => void
@@ -112,13 +113,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
       <div className="bg-white rounded-[28px] p-6 sm:p-12 w-full max-w-[440px] shadow-[0_8px_40px_rgba(15,23,42,0.12)] border border-[#E5E7EB]">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-[60px] h-[60px] bg-white rounded-[18px] flex items-center justify-center mx-auto mb-3.5 shadow-[0_8px_32px_rgba(30,99,214,0.25)] overflow-hidden border border-[#E5E7EB]">
-            <img
-              src="/images/logo.jpeg"
-              alt="Wecoo logo"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <BrandMark size="md" className="justify-center mb-3.5" showWordmark={false} />
           <h2 className="font-[Cabinet_Grotesk] text-[22px] font-extrabold text-[#0F172A]">Wec<span className="text-[#F5C400]">coo</span></h2>
           <p className="text-[14px] text-gray-500 mt-1">La communauté d'echange étudiante</p>
         </div>

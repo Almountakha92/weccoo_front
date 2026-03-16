@@ -4,6 +4,7 @@ import type { ItemResponseDto } from '../dto'
 import { publishTypeOptionsDto, type PublishItemProps } from '../dto'
 import { publishItemMessages } from '../messages'
 import { createItem } from '../services/itemApi'
+import BrandMark from '../components/BrandMark'
 
 interface PublishItemPageProps extends PublishItemProps {
   onItemCreated: (item: ItemResponseDto) => void
@@ -204,6 +205,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
     <div className="bg-gray-100 w-full h-full p-9 max-lg:p-5 max-md:pb-24 border-t-4 border-[#1E63D6] flex flex-col items-center">
       {/* Header */}
       <div className="mb-7 w-full max-w-2xl">
+        <BrandMark size="sm" className="mb-4" />
         <h2 className="font-[Cabinet_Grotesk] text-[28px] font-extrabold text-[#0F172A] mb-1">Publier un objet</h2>
         <p className="text-[14.5px] text-gray-500">Donne une seconde vie à tes affaires en 3 étapes</p>
       </div>
