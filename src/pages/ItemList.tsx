@@ -118,7 +118,7 @@ export default function ItemList({ items, likedItemIds, isLoading, onSelectItem,
     <div className="bg-gray-100 min-h-screen p-4 sm:p-5 lg:p-9 max-md:pb-24">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="font-[Cabinet_Grotesk] text-[22px] sm:text-[28px] font-extrabold text-[#0F172A] mb-1">Explorer les objets</h2>
+        <h2 className="font-[Cabinet_Grotesk] text-[22px] sm:text-[28px] font-extrabold text-[#1E63D6] mb-1">Explorer les objets</h2>
         <p className="text-[13.5px] sm:text-[14.5px] text-gray-500">
           {isLoading ? 'Chargement des objets...' : `${formatCount(count)} ${countLabel} disponibles autour de toi`}
         </p>
