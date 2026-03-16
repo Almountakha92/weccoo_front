@@ -21,7 +21,7 @@ export default function BottomNav({ activeScreen, onNavigate }: BottomNavProps) 
           key={item.id}
           onClick={() => onNavigate(item.id)}
           className={`flex flex-col items-center gap-1 cursor-pointer text-[11px] font-semibold transition-colors duration-180 ${
-            activeScreen === item.id ? 'text-[#1DA870]' : 'text-gray-500'
+            activeScreen === item.id ? 'text-[#1E63D6]' : 'text-gray-500'
           }`}
           style={item.isAction ? { position: 'relative' } : {}}
         >
