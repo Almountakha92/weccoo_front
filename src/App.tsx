@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Sidebar from './components/Sidebar'
 import BottomNav from './components/BottomNav'
 import Toast from './components/Toast'
+import Landing from './pages/Landing'
 import Home from './pages/Home'
 import ItemList from './pages/ItemList'
 import ItemDetail from './pages/ItemDetail'
@@ -16,7 +17,7 @@ import { clearAuthSession, getAuthToken, getAuthUser, setAuthUser as setAuthUser
 import { fetchStats } from './services/statsApi'
 import type { StatsResponseDto } from './dto'
 
-type ScreenName = 'home' | 'list' | 'detail' | 'messages' | 'profile' | 'publish' | 'auth'
+type ScreenName = 'landing' | 'home' | 'list' | 'detail' | 'messages' | 'profile' | 'publish' | 'auth'
 
 const getNotificationsEnabledKey = (userId: string) => `students_notifications_enabled_${userId}`
 const getNotificationsLastSeenKey = (userId: string) => `students_notifications_last_seen_${userId}`
@@ -38,7 +39,7 @@ const setStoredNotificationsLastSeen = (userId: string, iso: string) => {
 }
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState<ScreenName>('home')
+  const [activeScreen, setActiveScreen] = useState<ScreenName>('landing')
   const [authToken, setAuthToken] = useState(() => getAuthToken())
   const [authUser, setAuthUser] = useState(() => getAuthUser())
   const [items, setItems] = useState<ItemResponseDto[]>([])
@@ -339,6 +340,8 @@ export default function App() {
 
   const renderScreen = () => {
     switch (activeScreen) {
+      case 'landing':
+        return <Landing onNavigate={handleNavigate} />
       case 'home':
         return (
           <Home
@@ -444,13 +447,15 @@ export default function App() {
   return (
     <div className="flex min-h-screen bg-[#F0F7FF]">
       {/* Sidebar - Desktop */}
-      <Sidebar
-        activeScreen={activeScreen}
-        onNavigate={handleNavigate}
-        isAuthenticated={isAuthenticated}
-        authUser={authUser}
-        onLogout={handleLogout}
-      />
+      {activeScreen !== 'auth' && activeScreen !== 'landing' && (
+        <Sidebar
+          activeScreen={activeScreen}
+          onNavigate={handleNavigate}
+          isAuthenticated={isAuthenticated}
+          authUser={authUser}
+          onLogout={handleLogout}
+        />
+      )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto min-w-0">
@@ -458,7 +463,9 @@ export default function App() {
       </main>
 
       {/* Bottom Nav - Mobile */}
-      <BottomNav activeScreen={activeScreen} onNavigate={handleNavigate} />
+      {activeScreen !== 'auth' && activeScreen !== 'landing' && (
+        <BottomNav activeScreen={activeScreen} onNavigate={handleNavigate} />
+      )}
 
       {/* Toast */}
       <Toast

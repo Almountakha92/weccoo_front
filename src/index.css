@@ -87,6 +87,21 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes blink-right {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(8px);
+  }
+}
+
+.animate-blink-right {
+  animation: blink-right 1s ease-in-out infinite;
+}
+
 /* Font families */
 .font-\[Cabinet_Grotesk\] {
   font-family: 'Cabinet Grotesk', sans-serif;
