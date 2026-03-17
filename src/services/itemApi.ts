@@ -52,6 +52,15 @@ export const toggleItemLike = async (itemId: string) => {
   return parseResponse<{ item: ItemResponseDto; liked: boolean }>(response)
 }
 
+export const archiveItem = async (itemId: string) => {
+  const response = await fetch(`${API_BASE_URL}/items/${itemId}/archive`, {
+    method: 'PATCH',
+    headers: getAuthHeaders()
+  })
+
+  return parseResponse<ItemResponseDto>(response)
+}
+
 export const fetchReceivedLikes = async (userId: string, limit = 10) => {
   const response = await fetch(`${API_BASE_URL}/items/received-likes/${userId}?limit=${limit}`, {
     headers: getAuthHeaders()

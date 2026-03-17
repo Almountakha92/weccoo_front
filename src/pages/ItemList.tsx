@@ -1,8 +1,10 @@
 import React from 'react'
-import { Search, Heart, MapPin, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2 } from 'lucide-react'
+import { Search, Heart, MapPin, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, PhoneCall, MessageCircle, MessageSquare } from 'lucide-react'
 import type { ItemResponseDto } from '../dto'
+import type { AuthUserSession } from '../services/authToken'
 
 interface ItemListProps {
+  authUser: AuthUserSession | null
   items: ItemResponseDto[]
   likedItemIds: Set<string>
   isLoading: boolean
@@ -67,6 +69,26 @@ const formatRelativeDate = (isoDate: string) => {
   return createdAt.toLocaleDateString('fr-FR')
 }
 
+const formatFeedDateTime = (isoDate: string) => {
+  const createdAt = new Date(isoDate)
+  if (Number.isNaN(createdAt.getTime())) return ''
+
+  const now = new Date()
+  const createdDayKey = createdAt.toDateString()
+  const nowDayKey = now.toDateString()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  const yesterdayKey = yesterday.toDateString()
+
+  const time = createdAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+
+  if (createdDayKey === nowDayKey) return `Aujourd'hui, ${time}`
+  if (createdDayKey === yesterdayKey) return `Hier, ${time}`
+
+  const date = createdAt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+  return `${date}, ${time}`
+}
+
 const getItemInitials = (title: string) => {
   const parts = title.split(' ').filter(Boolean).slice(0, 2)
   return parts.map((part) => part[0]?.toUpperCase() ?? '').join('') || '??'
@@ -74,7 +96,7 @@ const getItemInitials = (title: string) => {
 
 const formatCount = (value: number) => new Intl.NumberFormat('fr-FR').format(value)
 
-export default function ItemList({ items, likedItemIds, isLoading, onSelectItem, onToggleLike, onShowToast }: ItemListProps) {
+export default function ItemList({ authUser, items, likedItemIds, isLoading, onNavigate, onSelectItem, onToggleLike, onShowToast }: ItemListProps) {
   // ✅ Un seul filtre actif à la fois
   const [activeFilter, setActiveFilter] = React.useState<string>('all')
   const [searchQuery, setSearchQuery] = React.useState('')
@@ -164,14 +186,20 @@ export default function ItemList({ items, likedItemIds, isLoading, onSelectItem,
       {/* Items Grid */}
       <div className="grid grid-cols-4 gap-[18px] max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1">
         {isLoading && <div className="text-sm text-gray-500">Chargement des objets...</div>}
-        {!isLoading && filteredItems.map((item) => {
-          const Icon = getCategoryIcon(item.category)
-          const isLiked = likedItemIds.has(item.id)
-          return (
-            <div
-              key={item.id}
-              onClick={() => onSelectItem(item.id)}
-              className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_24px_rgba(15,23,42,0.08)] cursor-pointer hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(15,23,42,0.12)] transition-all duration-220"
+	        {!isLoading && filteredItems.map((item) => {
+	          const Icon = getCategoryIcon(item.category)
+	          const isLiked = likedItemIds.has(item.id)
+	          const isOwnerItem = Boolean(authUser?.id && authUser.id === item.ownerId)
+	          const hasWhatsapp = Boolean(item.ownerWhatsappPhone?.trim())
+	          const whatsappUrl = hasWhatsapp
+	            ? `https://wa.me/${item.ownerWhatsappPhone!.replace(/[^0-9]/g, '')}`
+	            : null
+	          const telUrl = hasWhatsapp ? `tel:${item.ownerWhatsappPhone!.replace(/\s/g, '')}` : null
+	          return (
+	            <div
+	              key={item.id}
+	              onClick={() => onSelectItem(item.id)}
+	              className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_24px_rgba(15,23,42,0.08)] cursor-pointer hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(15,23,42,0.12)] transition-all duration-220"
             >
               {/* Card Image */}
               <div className="h-[148px] bg-gray-100 relative flex items-center justify-center">
@@ -206,25 +234,74 @@ export default function ItemList({ items, likedItemIds, isLoading, onSelectItem,
               </div>
               
               {/* Card Body */}
-              <div className="p-3.5 pb-4">
-                <div className="text-[14.5px] font-bold text-[#0F172A] mb-1">{item.title}</div>
-                <div className="text-[12.5px] text-gray-500 mb-2.5">{item.category} · {item.condition}</div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-[22px] h-[22px] rounded-full bg-[#A8EDD3] flex items-center justify-center text-[10px] font-bold text-[#1DA870]">
-                      {getItemInitials(item.title)}
-                    </div>
-                    <div className="text-[11.5px] text-gray-500 font-medium">{formatRelativeDate(item.createdAt)}</div>
-                  </div>
-                  <div className="text-[11.5px] text-gray-400 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {item.location}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
+	              <div className="p-3.5 pb-4">
+	                <div className="text-[14.5px] font-bold text-[#0F172A] mb-1">{item.title}</div>
+	                <div className="text-[12.5px] text-gray-500 mb-2.5">{item.category} · {item.condition}</div>
+	                <div className="flex items-center justify-between">
+	                  <div className="flex items-center gap-1.5">
+	                    <div className="w-[22px] h-[22px] rounded-full bg-[#A8EDD3] flex items-center justify-center text-[10px] font-bold text-[#1DA870]">
+	                      {getItemInitials(item.title)}
+	                    </div>
+	                    <div className="text-[11.5px] text-gray-500 font-medium">{formatFeedDateTime(item.createdAt) || formatRelativeDate(item.createdAt)}</div>
+	                  </div>
+	                  <div className="text-[11.5px] text-gray-400 flex items-center gap-1">
+	                    <MapPin className="w-3 h-3" />
+	                    {item.location}
+	                  </div>
+	                </div>
+
+	                {!isOwnerItem && (
+	                  <div className="mt-4 flex items-center gap-3">
+	                    <button
+	                      type="button"
+	                      onClick={(e) => {
+	                        e.stopPropagation()
+	                        if (!telUrl) {
+	                          onShowToast('Numéro indisponible.', 'error')
+	                          return
+	                        }
+	                        window.open(telUrl, '_self')
+	                      }}
+	                      className="w-11 h-11 rounded-full bg-[#F5C400] text-white flex items-center justify-center shadow-[0_8px_18px_rgba(245,196,0,0.25)] hover:bg-[#E0AC00] hover:-translate-y-0.5 transition-transform"
+	                      title="Appeler"
+	                      aria-label="Appeler"
+	                    >
+	                      <PhoneCall className="w-5 h-5" />
+	                    </button>
+	                    <button
+	                      type="button"
+	                      onClick={(e) => {
+	                        e.stopPropagation()
+	                        if (!whatsappUrl) {
+	                          onShowToast('Numéro WhatsApp indisponible.', 'error')
+	                          return
+	                        }
+	                        window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+	                      }}
+	                      className="w-11 h-11 rounded-full bg-[#2ECC8F] text-white flex items-center justify-center shadow-[0_8px_18px_rgba(46,204,143,0.25)] hover:-translate-y-0.5 transition-transform"
+	                      title="WhatsApp"
+	                      aria-label="WhatsApp"
+	                    >
+	                      <MessageCircle className="w-5 h-5" />
+	                    </button>
+	                    <button
+	                      type="button"
+	                      onClick={(e) => {
+	                        e.stopPropagation()
+	                        onNavigate('messages')
+	                      }}
+	                      className="w-11 h-11 rounded-full bg-[#F5C400] text-white flex items-center justify-center shadow-[0_8px_18px_rgba(245,196,0,0.25)] hover:bg-[#E0AC00] hover:-translate-y-0.5 transition-transform"
+	                      title="Message"
+	                      aria-label="Message"
+	                    >
+	                      <MessageSquare className="w-5 h-5" />
+	                    </button>
+	                  </div>
+	                )}
+	              </div>
+	            </div>
+	          )
+	        })}
         {!isLoading && filteredItems.length === 0 && <div className="text-sm text-gray-500">Aucun resultat.</div>}
       </div>
     </div>

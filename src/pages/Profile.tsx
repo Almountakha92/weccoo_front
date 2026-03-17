@@ -75,6 +75,7 @@ export default function Profile({
   const publishedCount = userItems.length
   const exchangeCount = userItems.filter((item) => item.type === 'echange').length
   const donationCount = userItems.filter((item) => item.type === 'don').length
+  const [showAllMyItems, setShowAllMyItems] = React.useState(false)
   const [conversations, setConversations] = React.useState<ConversationResponseDto[]>([])
   const [isHistoryLoading, setIsHistoryLoading] = React.useState(false)
   const [likesReceived, setLikesReceived] = React.useState<LikeReceivedResponseDto[]>([])
@@ -87,6 +88,7 @@ export default function Profile({
   const [newPassword, setNewPassword] = React.useState('')
   const [isSavingPhone, setIsSavingPhone] = React.useState(false)
   const [isSavingPassword, setIsSavingPassword] = React.useState(false)
+  const visibleUserItems = showAllMyItems ? userItems : userItems.slice(0, 2)
 
   React.useEffect(() => {
     setPhoneDraft(authUser?.whatsappPhone ?? '')
@@ -354,27 +356,42 @@ export default function Profile({
       <div className="grid grid-cols-[1fr_340px] gap-6 max-lg:grid-cols-1">
         {/* Left Column */}
         <div>
-          {/* My Items */}
-          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mb-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[16px] font-extrabold text-[#0F172A]">Mes objets proposés</h2>
-              <button onClick={() => onNavigate('publish')} className="text-[13.5px] text-[#1DA870] font-bold hover:underline bg-transparent border-none cursor-pointer">
-                + Ajouter
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3.5">
-              {userItems.slice(0, 2).map((item) => (
-              <div 
-                key={item.id}
-                onClick={() => onSelectItem(item.id)}
-                className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_24px_rgba(15,23,42,0.08)] cursor-pointer border border-gray-100 hover:border-[#2ECC8F] transition-all"
-              >
-                <div className="h-[100px] bg-gray-100 relative flex items-center justify-center">
-                  {item.photos?.length ? (
-                    <>
-                      <img
-                        src={item.photos[0]}
+	          {/* My Items */}
+	          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mb-5">
+	            <div className="flex items-center justify-between mb-4">
+	              <h2 className="text-[16px] font-extrabold text-[#0F172A]">Mes objets proposés</h2>
+	              <div className="flex items-center gap-4">
+	                {userItems.length > 2 && (
+	                  <button
+	                    type="button"
+	                    onClick={() => setShowAllMyItems((current) => !current)}
+	                    className="text-[13.5px] text-[#1E63D6] font-bold hover:underline bg-transparent border-none cursor-pointer"
+	                  >
+	                    {showAllMyItems ? 'Voir moins' : 'Voir plus'}
+	                  </button>
+	                )}
+	                <button
+	                  type="button"
+	                  onClick={() => onNavigate('publish')}
+	                  className="text-[13.5px] text-[#1DA870] font-bold hover:underline bg-transparent border-none cursor-pointer"
+	                >
+	                  + Ajouter
+	                </button>
+	              </div>
+	            </div>
+	            
+	            <div className="grid grid-cols-2 gap-3.5">
+	              {visibleUserItems.map((item) => (
+	              <div 
+	                key={item.id}
+	                onClick={() => onSelectItem(item.id)}
+	                className="bg-white rounded-[18px] overflow-hidden shadow-[0_4px_20px_rgba(15,23,42,0.08)] cursor-pointer border border-gray-100 hover:border-[#2ECC8F] transition-all"
+	              >
+	                <div className="h-[84px] bg-gray-100 relative flex items-center justify-center">
+	                  {item.photos?.length ? (
+	                    <>
+	                      <img
+	                        src={item.photos[0]}
                         alt={item.title}
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
@@ -387,20 +404,20 @@ export default function Profile({
                       <BookOpen className="w-10 h-10 text-gray-600" />
                     </>
                   )}
-                  <div className="absolute top-2.5 left-2.5 text-[10px] font-extrabold rounded-full px-2 py-0.5 bg-white/90 text-[#0F172A]">
-                    {item.type}
-                  </div>
-                </div>
-                <div className="p-3">
-                  <div className="text-[13px] font-bold text-[#0F172A]">{item.title}</div>
-                  <div className="text-[11.5px] text-gray-500">{item.category} · {item.condition}</div>
-                  <div className="text-[11.5px] text-gray-500">Vues: {item.viewsCount} · J'aime: {item.likesCount}</div>
-                </div>
-              </div>
-              ))}
-              {userItems.length === 0 && <div className="text-[13px] text-gray-500">Aucun objet publie pour le moment.</div>}
-            </div>
-          </div>
+	                  <div className="absolute top-2.5 left-2.5 text-[10px] font-extrabold rounded-full px-2 py-0.5 bg-white/90 text-[#0F172A]">
+	                    {item.type}
+	                  </div>
+	                </div>
+	                <div className="p-2.5">
+	                  <div className="text-[12.5px] font-extrabold text-[#0F172A] truncate">{item.title}</div>
+	                  <div className="text-[11.5px] text-gray-500 truncate">{item.category} · {item.condition}</div>
+	                  <div className="text-[11.5px] text-gray-500">Vues: {item.viewsCount} · J'aime: {item.likesCount}</div>
+	                </div>
+	              </div>
+	              ))}
+	              {userItems.length === 0 && <div className="text-[13px] text-gray-500">Aucun objet publie pour le moment.</div>}
+	            </div>
+	          </div>
 
           {/* History */}
           <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">

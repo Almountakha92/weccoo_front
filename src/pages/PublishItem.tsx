@@ -17,6 +17,15 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
   const [photoError, setPhotoError] = React.useState<string | null>(null)
   const [isCameraOpen, setIsCameraOpen] = React.useState(false)
   const [cameraError, setCameraError] = React.useState<string | null>(null)
+  const [isExchangeFormOpen, setIsExchangeFormOpen] = React.useState(false)
+  const [exchangeNature, setExchangeNature] = React.useState<'vente' | 'echange_article' | ''>('')
+  const [exchangePrice, setExchangePrice] = React.useState('')
+  const [exchangeNeed, setExchangeNeed] = React.useState('')
+  const [exchangeError, setExchangeError] = React.useState<string | null>(null)
+  const [isLoanFormOpen, setIsLoanFormOpen] = React.useState(false)
+  const [loanPrice, setLoanPrice] = React.useState('')
+  const [loanPaymentType, setLoanPaymentType] = React.useState<'unique' | 'tranche' | 'mensuel' | 'autre' | ''>('')
+  const [loanDuration, setLoanDuration] = React.useState('')
   const [form, setForm] = React.useState({
     title: '',
     category: '',
@@ -33,6 +42,72 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
 
   const maxFiles = 5
   const maxSizeBytes = 5 * 1024 * 1024
+
+  const resetExchangeDetails = () => {
+    setExchangeNature('')
+    setExchangePrice('')
+    setExchangeNeed('')
+    setExchangeError(null)
+    setIsExchangeFormOpen(false)
+  }
+
+  const resetLoanDetails = () => {
+    setLoanPrice('')
+    setLoanPaymentType('')
+    setLoanDuration('')
+    setIsLoanFormOpen(false)
+  }
+
+  const buildDescription = (base: string) => {
+    if (selectedType !== 'echange' && selectedType !== 'pret') return base
+
+    const parts: string[] = []
+
+    if (selectedType === 'echange') {
+      if (exchangeNature === 'vente') {
+        parts.push("Nature de l'échange : Vente")
+        const trimmedPrice = exchangePrice.trim()
+        if (trimmedPrice) {
+          parts.push(`Prix : ${trimmedPrice}`)
+        }
+      } else if (exchangeNature === 'echange_article') {
+        parts.push("Nature de l'échange : Échange avec autre article")
+        const trimmedNeed = exchangeNeed.trim()
+        if (trimmedNeed) {
+          parts.push(`Recherche : ${trimmedNeed}`)
+        }
+      }
+    }
+
+    if (selectedType === 'pret') {
+      parts.push('Conditions du prêt :')
+      const trimmedLoanPrice = loanPrice.trim()
+      if (trimmedLoanPrice) {
+        parts.push(`Prix : ${trimmedLoanPrice}`)
+      }
+      if (loanPaymentType) {
+        const paymentLabel =
+          loanPaymentType === 'unique'
+            ? 'Paiement en une fois'
+            : loanPaymentType === 'tranche'
+              ? 'Paiement par tranche'
+              : loanPaymentType === 'mensuel'
+                ? 'Paiement mensuel'
+                : 'Autre'
+        parts.push(`Paiement : ${paymentLabel}`)
+      }
+      const trimmedDuration = loanDuration.trim()
+      if (trimmedDuration) {
+        parts.push(`Durée / contrat : ${trimmedDuration}`)
+      }
+    }
+
+    if (parts.length === 0) return base
+
+    const normalizedBase = base.trim()
+    const metaBlock = parts.join('\n')
+    return normalizedBase ? `${metaBlock}\n\n${normalizedBase}` : metaBlock
+  }
 
   const addFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
@@ -183,11 +258,19 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
       return
     }
 
+    if (selectedType === 'echange' && !exchangeNature) {
+      setExchangeError("Choisis la nature de l'échange.")
+      setIsExchangeFormOpen(true)
+      onShowToast("Précise la nature de l'échange.", 'error')
+      return
+    }
+
     try {
       setIsSubmitting(true)
       const response = await createItem({
         ...form,
         type: selectedType as 'don' | 'echange' | 'pret',
+        description: buildDescription(form.description),
         photos
       })
       onItemCreated(response.data)
@@ -431,6 +514,16 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
                 onClick={() => {
                   setSelectedType(type.id)
                   setForm((currentForm) => ({ ...currentForm, type: type.id }))
+                  if (type.id === 'echange') {
+                    setIsExchangeFormOpen(true)
+                    resetLoanDetails()
+                  } else if (type.id === 'pret') {
+                    setIsLoanFormOpen(true)
+                    resetExchangeDetails()
+                  } else {
+                    resetExchangeDetails()
+                    resetLoanDetails()
+                  }
                 }}
                 type="button"
                 className={`flex-1 py-3.5 rounded-[12px] border-2 cursor-pointer text-[13.5px] font-bold transition-all duration-180 ${
@@ -444,6 +537,67 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
             ))}
           </div>
         </div>
+
+	        {selectedType === 'echange' && (
+	          <button
+	            type="button"
+	            onClick={() => setIsExchangeFormOpen(true)}
+	            className="w-full mb-5.5 rounded-[16px] bg-[#FEF3C7] border border-[#F5C400]/30 px-4 py-3 flex items-center justify-between hover:bg-[#FDE68A] transition-colors"
+	            title="Configurer la nature de l'échange"
+	          >
+	            <div className="text-left">
+	              <div className="text-[13px] font-extrabold text-[#0F172A]">Configurer la nature de l’échange</div>
+	              {exchangeNature && (
+	                <div className="text-[12px] text-gray-700 font-semibold">
+	                  {exchangeNature === 'vente'
+	                    ? `Vente${exchangePrice.trim() ? ` · Prix: ${exchangePrice.trim()}` : ''}`
+	                    : `Échange avec autre article${exchangeNeed.trim() ? ` · Besoin: ${exchangeNeed.trim()}` : ''}`}
+	                </div>
+	              )}
+	              {exchangeError && <div className="text-[12px] text-rose-600 font-extrabold mt-1">{exchangeError}</div>}
+	            </div>
+	            <div className="w-9 h-9 rounded-full bg-white/80 border border-[#F5C400]/20 flex items-center justify-center font-extrabold text-[#F5C400]">
+	              2
+	            </div>
+	          </button>
+	        )}
+
+	        {selectedType === 'pret' && (
+	          <button
+	            type="button"
+	            onClick={() => setIsLoanFormOpen(true)}
+	            className="w-full mb-5.5 rounded-[16px] bg-[#FEF3C7] border border-[#F5C400]/30 px-4 py-3 flex items-center justify-between hover:bg-[#FDE68A] transition-colors"
+	            title="Configurer les conditions du prêt"
+	          >
+	            <div className="text-left">
+	              <div className="text-[13px] font-extrabold text-[#0F172A]">Configurer les conditions du prêt</div>
+	              {(loanPrice.trim() || loanPaymentType || loanDuration.trim()) && (
+	                <div className="text-[12px] text-gray-700 font-semibold">
+	                  {[
+	                    loanPrice.trim() ? `Prix: ${loanPrice.trim()}` : null,
+	                    loanPaymentType
+	                      ? `Paiement: ${
+	                          loanPaymentType === 'unique'
+	                            ? 'une fois'
+	                            : loanPaymentType === 'tranche'
+	                              ? 'par tranche'
+	                              : loanPaymentType === 'mensuel'
+	                                ? 'mensuel'
+	                                : 'autre'
+	                        }`
+	                      : null,
+	                    loanDuration.trim() ? `Durée: ${loanDuration.trim()}` : null,
+	                  ]
+	                    .filter(Boolean)
+	                    .join(' · ')}
+	                </div>
+	              )}
+	            </div>
+	            <div className="w-9 h-9 rounded-full bg-white/80 border border-[#F5C400]/20 flex items-center justify-center font-extrabold text-[#F5C400]">
+	              2
+	            </div>
+	          </button>
+	        )}
 
         {/* Location */}
         <div className="mb-5.5">
@@ -473,6 +627,213 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
            </div>
        
       </div>
+
+      {isExchangeFormOpen && selectedType === 'echange' && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[18px] w-full max-w-[560px] overflow-hidden shadow-[0_18px_70px_rgba(0,0,0,0.30)]">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <div className="font-[Cabinet_Grotesk] text-[18px] font-extrabold text-[#0F172A]">
+                  Détails de l’échange
+                </div>
+                <div className="text-[12.5px] text-gray-500 font-semibold">
+                  Choisis la nature de l’échange (et ajoute un prix si c’est une vente).
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsExchangeFormOpen(false)
+                  setExchangeError(null)
+                }}
+                className="px-3 py-1.5 rounded-full bg-gray-100 text-[#0F172A] text-[12.5px] font-bold hover:bg-gray-200 transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="px-5 py-5">
+              <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">
+                Nature de l’échange *
+              </label>
+              <select
+                value={exchangeNature}
+                onChange={(e) => {
+                  const next = e.target.value as 'vente' | 'echange_article' | ''
+                  setExchangeNature(next)
+                  setExchangeError(null)
+                  if (next !== 'vente') setExchangePrice('')
+                  if (next !== 'echange_article') setExchangeNeed('')
+                }}
+                className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white cursor-pointer"
+              >
+                <option value="">Choisir…</option>
+                <option value="vente">Vente</option>
+                <option value="echange_article">Échange avec autre article</option>
+              </select>
+
+              {exchangeNature === 'echange_article' && (
+                <div className="mt-4">
+                  <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">
+                    Ton besoin (optionnel)
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Ex : Je cherche un ordinateur, un livre de maths, une calculatrice…"
+                    value={exchangeNeed}
+                    onChange={(e) => {
+                      setExchangeNeed(e.target.value)
+                      setExchangeError(null)
+                    }}
+                    className="w-full px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white resize-none"
+                    maxLength={240}
+                  />
+                  <div className="text-[12px] text-gray-500 font-semibold mt-1">
+                    Décris l’article que tu souhaites recevoir en échange.
+                  </div>
+                </div>
+              )}
+
+              {exchangeNature === 'vente' && (
+                <div className="mt-4">
+                  <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Prix (optionnel)</label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="Ex : 25000"
+                    value={exchangePrice}
+                    onChange={(e) => {
+                      setExchangePrice(e.target.value)
+                      setExchangeError(null)
+                    }}
+                    className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white"
+                  />
+                  <div className="text-[12px] text-gray-500 font-semibold mt-1">
+                    Laisse vide si c’est un échange sans prix.
+                  </div>
+                </div>
+              )}
+
+              {exchangeError && <div className="text-[12.5px] text-rose-600 font-extrabold mt-3">{exchangeError}</div>}
+            </div>
+
+            <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedType('don')
+                  setForm((currentForm) => ({ ...currentForm, type: 'don' }))
+                  resetExchangeDetails()
+                }}
+                className="px-4 py-3 rounded-full bg-white border border-gray-200 text-[#0F172A] text-[13px] font-bold hover:bg-gray-50 transition-colors"
+              >
+                Annuler l’échange
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!exchangeNature) {
+                    setExchangeError("Choisis la nature de l'échange.")
+                    return
+                  }
+                  setIsExchangeFormOpen(false)
+                  setExchangeError(null)
+                }}
+                className="px-4 py-3 rounded-full bg-[#1E63D6] text-white text-[13px] font-bold hover:bg-[#174FA9] transition-colors"
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isLoanFormOpen && selectedType === 'pret' && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[18px] w-full max-w-[560px] overflow-hidden shadow-[0_18px_70px_rgba(0,0,0,0.30)]">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <div className="font-[Cabinet_Grotesk] text-[18px] font-extrabold text-[#0F172A]">
+                  Conditions du prêt
+                </div>
+                <div className="text-[12.5px] text-gray-500 font-semibold">
+                  Décris la nature du prêt (prix, paiement, durée/contrat).
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLoanFormOpen(false)}
+                className="px-3 py-1.5 rounded-full bg-gray-100 text-[#0F172A] text-[12.5px] font-bold hover:bg-gray-200 transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="px-5 py-5 space-y-4">
+              <div>
+                <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Prix à payer (optionnel)</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="Ex : 5000"
+                  value={loanPrice}
+                  onChange={(e) => setLoanPrice(e.target.value)}
+                  className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Type de paiement (optionnel)</label>
+                <select
+                  value={loanPaymentType}
+                  onChange={(e) => setLoanPaymentType(e.target.value as typeof loanPaymentType)}
+                  className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white cursor-pointer"
+                >
+                  <option value="">Choisir…</option>
+                  <option value="unique">Paiement en une fois</option>
+                  <option value="tranche">Paiement par tranche</option>
+                  <option value="mensuel">Paiement mensuel</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Contrat / durée (optionnel)</label>
+                <input
+                  type="text"
+                  placeholder="Ex : 2 semaines, 1 mois, jusqu’au 30/04…"
+                  value={loanDuration}
+                  onChange={(e) => setLoanDuration(e.target.value)}
+                  className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white"
+                  maxLength={80}
+                />
+              </div>
+            </div>
+
+            <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  resetLoanDetails()
+                  setIsLoanFormOpen(false)
+                }}
+                className="px-4 py-3 rounded-full bg-white border border-gray-200 text-[#0F172A] text-[13px] font-bold hover:bg-gray-50 transition-colors"
+              >
+                Réinitialiser
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsLoanFormOpen(false)}
+                className="px-4 py-3 rounded-full bg-[#1E63D6] text-white text-[13px] font-bold hover:bg-[#174FA9] transition-colors"
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

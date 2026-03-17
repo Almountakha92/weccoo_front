@@ -26,4 +26,5 @@ export interface ItemResponseDto {
   likesCount: number
   viewsCount: number
   createdAt: string
+  archivedAt?: string | null
 }

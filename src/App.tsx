@@ -9,6 +9,7 @@ import ItemDetail from './pages/ItemDetail'
 import Messages from './pages/Messages'
 import Profile from './pages/Profile'
 import PublishItem from './pages/PublishItem'
+import Announcements from './pages/Announcements'
 import Auth from './pages/Auth'
 import type { AuthResponseDto, ItemResponseDto } from './dto'
 import { fetchItems } from './services/itemApi'
@@ -17,7 +18,7 @@ import { clearAuthSession, getAuthToken, getAuthUser, setAuthUser as setAuthUser
 import { fetchStats } from './services/statsApi'
 import type { StatsResponseDto } from './dto'
 
-type ScreenName = 'landing' | 'home' | 'list' | 'detail' | 'messages' | 'profile' | 'publish' | 'auth'
+type ScreenName = 'landing' | 'home' | 'list' | 'detail' | 'messages' | 'profile' | 'publish' | 'annonces' | 'auth'
 
 const getNotificationsEnabledKey = (userId: string) => `students_notifications_enabled_${userId}`
 const getNotificationsLastSeenKey = (userId: string) => `students_notifications_last_seen_${userId}`
@@ -87,7 +88,7 @@ export default function App() {
     try {
       setIsItemsLoading(true)
       const response = await fetchItems()
-      setItems(response.data)
+      setItems(response.data.filter((item) => !item.archivedAt))
       setSelectedItemId((currentItemId) => currentItemId ?? response.data[0]?.id ?? null)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Impossible de charger les objets.'
@@ -110,6 +111,11 @@ export default function App() {
         // view tracking should not block navigation
       }
     })()
+  }
+
+  const handleItemArchived = (archivedItem: ItemResponseDto) => {
+    setItems((currentItems) => currentItems.filter((item) => item.id !== archivedItem.id))
+    setSelectedItemId(null)
   }
 
   const handleToggleLike = async (itemId: string) => {
@@ -360,14 +366,15 @@ export default function App() {
             onOpenNotifications={handleOpenNotifications}
           />
         )
-      case 'list':
-        return (
-          <ItemList
-            items={items}
-            likedItemIds={likedItemIds}
-            isLoading={isItemsLoading}
-            onNavigate={handleNavigate}
-            onSelectItem={handleSelectItem}
+	      case 'list':
+	        return (
+	          <ItemList
+	            authUser={authUser}
+	            items={items}
+	            likedItemIds={likedItemIds}
+	            isLoading={isItemsLoading}
+	            onNavigate={handleNavigate}
+	            onSelectItem={handleSelectItem}
             onToggleLike={handleToggleLike}
             onShowToast={showToast}
           />
@@ -378,6 +385,7 @@ export default function App() {
             authUser={authUser}
             item={items.find((item) => item.id === selectedItemId) ?? null}
             onNavigate={handleNavigate}
+            onItemArchived={handleItemArchived}
             onShowToast={showToast}
           />
         )
@@ -390,6 +398,8 @@ export default function App() {
             onShowToast={showToast}
           />
         )
+      case 'annonces':
+        return <Announcements authUser={authUser} onNavigate={handleNavigate} />
       case 'profile':
         return (
           <Profile
@@ -423,10 +433,10 @@ export default function App() {
             onAuthSuccess={handleAuthSuccess}
           />
         )
-      default:
-        return (
-          <Home
-            authUser={authUser}
+	      default:
+	        return (
+	          <Home
+	            authUser={authUser}
             itemsCount={stats?.itemsCount ?? items.length}
             usersCount={stats?.usersCount ?? 0}
             notificationsEnabled={notificationsEnabled}
@@ -444,18 +454,18 @@ export default function App() {
     }
   }
 
-  return (
-    <div className="flex min-h-screen bg-[#F0F7FF]">
-      {/* Sidebar - Desktop */}
-      {activeScreen !== 'auth' && activeScreen !== 'landing' && (
-        <Sidebar
-          activeScreen={activeScreen}
-          onNavigate={handleNavigate}
-          isAuthenticated={isAuthenticated}
-          authUser={authUser}
-          onLogout={handleLogout}
-        />
-      )}
+	  return (
+	    <div className="flex min-h-screen bg-[#F0F7FF]">
+	      {/* Sidebar - Desktop */}
+	      {activeScreen !== 'auth' && activeScreen !== 'landing' && activeScreen !== 'annonces' && (
+	        <Sidebar
+	          activeScreen={activeScreen}
+	          onNavigate={handleNavigate}
+	          isAuthenticated={isAuthenticated}
+	          authUser={authUser}
+	          onLogout={handleLogout}
+	        />
+	      )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto min-w-0">

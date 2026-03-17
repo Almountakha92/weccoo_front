@@ -102,6 +102,42 @@ h1, h2, h3, h4, h5, h6 {
   animation: blink-right 1s ease-in-out infinite;
 }
 
+@keyframes announcements-phrase {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(0.3px);
+  }
+  14% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+  86% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+    filter: blur(0.3px);
+  }
+}
+
+.animate-announcements-phrase {
+  animation: announcements-phrase 4s ease-in-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-announcements-phrase {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 /* Font families */
 .font-\[Cabinet_Grotesk\] {
   font-family: 'Cabinet Grotesk', sans-serif;

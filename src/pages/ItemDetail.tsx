@@ -1,12 +1,14 @@
 import React from 'react'
-import { ArrowLeft, BookOpen, MessageSquare, Heart, Share2, Shield, MapPin, Clock } from 'lucide-react'
+import { ArrowLeft, Archive, BookOpen, MessageSquare, Heart, Share2, Shield, MapPin, Clock } from 'lucide-react'
 import type { ItemResponseDto } from '../dto'
 import type { AuthUserSession } from '../services/authToken'
+import { archiveItem } from '../services/itemApi'
 
 interface ItemDetailProps {
   authUser: AuthUserSession | null
   item: ItemResponseDto | null
   onNavigate: (screen: string) => void
+  onItemArchived: (item: ItemResponseDto) => void
   onShowToast: (message: string, type?: string) => void
 }
 
@@ -50,13 +52,35 @@ const getConditionMeta = (rawCondition: string) => {
   return { label: rawCondition, score: 3 }
 }
 
-export default function ItemDetail({ authUser, item, onNavigate, onShowToast }: ItemDetailProps) {
+export default function ItemDetail({ authUser, item, onNavigate, onItemArchived, onShowToast }: ItemDetailProps) {
   const [activeThumb, setActiveThumb] = React.useState(0)
+  const [isArchiving, setIsArchiving] = React.useState(false)
   const ownerInitials = item?.ownerInitials ?? item?.ownerName?.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join('') ?? '??'
   const ownerName = item?.ownerName ?? item?.ownerId ?? 'Proprietaire'
   const isOwner = Boolean(authUser && item && authUser.id === item.ownerId)
   const whatsappUrl = item?.ownerWhatsappPhone ? `https://wa.me/${item.ownerWhatsappPhone.replace(/[^0-9]/g, '')}` : null
   const conditionMeta = item ? getConditionMeta(item.condition) : { label: '', score: 0 }
+
+  const handleArchive = () => {
+    if (!item) return
+    const confirmed = window.confirm("Archiver cet article ? Il n'apparaîtra plus dans la liste.")
+    if (!confirmed) return
+
+    void (async () => {
+      try {
+        setIsArchiving(true)
+        const response = await archiveItem(item.id)
+        onItemArchived(response.data)
+        onShowToast('Article archivé.', 'success')
+        onNavigate('profile')
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Archivage impossible.'
+        onShowToast(message, 'error')
+      } finally {
+        setIsArchiving(false)
+      }
+    })()
+  }
 
   if (!item) {
     return (
@@ -85,38 +109,61 @@ export default function ItemDetail({ authUser, item, onNavigate, onShowToast }: 
         <div>
           {/* Gallery */}
           <div className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
-            <div className="h-[320px] flex items-center justify-center bg-[#E8FAF3] relative">
-              {item.photos?.length ? (
-                <img
-                  src={item.photos[Math.min(activeThumb, item.photos.length - 1)]}
-                  alt={item.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <BookOpen className="w-24 h-24 text-gray-600" />
-              )}
-            </div>
-            <div className="flex gap-3 p-4">
-              {(item.photos?.length ? item.photos : thumbnails).map((entry, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveThumb(index)}
-                  className={`w-[68px] h-[68px] rounded-[8px] bg-gray-100 flex items-center justify-center cursor-pointer border-2 transition-all duration-180 ${
-                    activeThumb === index ? 'border-[#2ECC8F]' : 'border-transparent hover:border-gray-300'
-                  }`}
-                >
-                  {typeof entry === 'string' ? (
-                    <img src={entry} alt={`thumb-${index + 1}`} className="w-full h-full object-cover rounded-[6px]" />
-                  ) : (
-                    <entry className="w-6 h-6 text-gray-600" />
-                  )}
-                </button>
-              ))}
-              <button className="w-[68px] h-[68px] rounded-[8px] bg-gray-100 flex items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 text-gray-400 text-base">
-                +
-              </button>
-            </div>
-          </div>
+	            <div className="h-[320px] flex items-center justify-center bg-[#E8FAF3] relative">
+	              {item.photos?.length ? (
+	                <img
+	                  src={item.photos[Math.min(activeThumb, item.photos.length - 1)]}
+	                  alt={item.title}
+	                  className="w-full h-full object-cover"
+	                />
+	              ) : (
+	                <BookOpen className="w-24 h-24 text-gray-600" />
+	              )}
+	            </div>
+	            <div className="flex items-center justify-between gap-3 p-4">
+	              <div className="flex gap-3">
+	                {(item.photos?.length ? item.photos : thumbnails).map((entry, index) => (
+	                  <button
+	                    key={index}
+	                    onClick={() => setActiveThumb(index)}
+	                    className={`w-[68px] h-[68px] rounded-[8px] bg-gray-100 flex items-center justify-center cursor-pointer border-2 transition-all duration-180 ${
+	                      activeThumb === index ? 'border-[#2ECC8F]' : 'border-transparent hover:border-gray-300'
+	                    }`}
+	                  >
+	                    {typeof entry === 'string' ? (
+	                      <img src={entry} alt={`thumb-${index + 1}`} className="w-full h-full object-cover rounded-[6px]" />
+	                    ) : (
+	                      <entry className="w-6 h-6 text-gray-600" />
+	                    )}
+	                  </button>
+	                ))}
+	                <button
+	                  type="button"
+	                  className="w-[68px] h-[68px] rounded-[8px] bg-gray-100 flex items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 text-gray-400 text-base"
+	                  title="Ajouter"
+	                >
+	                  +
+	                </button>
+	              </div>
+
+	              {isOwner && (
+	                <button
+	                  type="button"
+	                  disabled={isArchiving}
+	                  onClick={handleArchive}
+	                  className={`shrink-0 h-11 px-4 rounded-full border border-[#F5C400]/30 font-extrabold text-[13px] transition-all duration-200 flex items-center gap-2 ${
+	                    isArchiving
+	                      ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+	                      : 'bg-[#F5C400] text-white hover:bg-[#E0AC00] hover:-translate-y-0.5 shadow-[0_8px_26px_rgba(245,196,0,0.22)]'
+	                  }`}
+	                  title="Archiver cet article"
+	                >
+	                  <Archive className="w-4 h-4" />
+	                  {isArchiving ? 'Archivage…' : 'Archiver'}
+	                </button>
+	              )}
+	            </div>
+	          </div>
 
           {/* Info */}
           <div className="bg-white rounded-[20px] p-7 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mt-5">
@@ -162,11 +209,11 @@ export default function ItemDetail({ authUser, item, onNavigate, onShowToast }: 
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="flex flex-col gap-5">
-          {/* Owner Card */}
-          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
-            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-3.5">Propriétaire</div>
+	        {/* Right Column */}
+	        <div className="flex flex-col gap-5">
+	          {/* Owner Card */}
+	          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
+	            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-3.5">Propriétaire</div>
             
             <div className="flex items-center gap-3.5 p-4 bg-gray-100 rounded-[12px] mb-5">
               <div className="w-[52px] h-[52px] rounded-full bg-[#A8EDD3] flex items-center justify-center text-xl font-extrabold text-[#1DA870]">
@@ -177,27 +224,27 @@ export default function ItemDetail({ authUser, item, onNavigate, onShowToast }: 
               </div>
             </div>
 
-            {!isOwner && (
-              <button
-                onClick={() => {
-                  if (!whatsappUrl) {
-                    onShowToast('Numero WhatsApp indisponible.', 'error')
-                    return
+	            {!isOwner && (
+	              <button
+	                onClick={() => {
+	                  if (!whatsappUrl) {
+	                    onShowToast('Numero WhatsApp indisponible.', 'error')
+	                    return
                   }
 
                   window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
                 }}
-                className="w-full py-4 rounded-full text-base font-extrabold bg-[#2ECC8F] text-white border-none cursor-pointer shadow-[0_8px_32px_rgba(46,204,143,0.25)] hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(46,204,143,0.4)] transition-all duration-200 font-['Cabinet_Grotesk'] flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-5 h-5" />
-                Contacter le propriétaire
-              </button>
-            )}
-            
-            <div className="flex items-center justify-center gap-2 text-[12px] text-gray-500 mt-3">
-              <Shield className="w-4 h-4" />
-              Échange sécurisé & vérification université
-            </div>
+	                className="w-full py-4 rounded-full text-base font-extrabold bg-[#2ECC8F] text-white border-none cursor-pointer shadow-[0_8px_32px_rgba(46,204,143,0.25)] hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(46,204,143,0.4)] transition-all duration-200 font-['Cabinet_Grotesk'] flex items-center justify-center gap-2"
+	              >
+	                <MessageSquare className="w-5 h-5" />
+	                Contacter le propriétaire
+	              </button>
+	            )}
+
+		            <div className="flex items-center justify-center gap-2 text-[12px] text-gray-500 mt-3">
+		              <Shield className="w-4 h-4" />
+		              Échange sécurisé & vérification université
+	            </div>
           </div>
 
           {/* Exchange Info */}
