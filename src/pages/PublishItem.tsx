@@ -13,6 +13,7 @@ interface PublishItemPageProps extends PublishItemProps {
 export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: PublishItemPageProps) {
   const [selectedType, setSelectedType] = React.useState('don')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [fieldErrors, setFieldErrors] = React.useState<{ category?: string; location?: string }>({})
   const [photos, setPhotos] = React.useState<string[]>([])
   const [photoError, setPhotoError] = React.useState<string | null>(null)
   const [isCameraOpen, setIsCameraOpen] = React.useState(false)
@@ -30,9 +31,9 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
     title: '',
     category: '',
     description: '',
-    condition: 'Tres bon etat',
+    condition: '',
     type: 'don' as 'don' | 'echange' | 'pret',
-    location: 'Université Paris-Saclay'
+    location: ''
   })
 
   const filePickerRef = React.useRef<HTMLInputElement | null>(null)
@@ -57,6 +58,9 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
     setLoanDuration('')
     setIsLoanFormOpen(false)
   }
+
+  const inputErrorClasses = (hasError: boolean) =>
+    `w-full ${hasError ? 'border-rose-400 bg-rose-50/40 focus:border-rose-500' : 'border-gray-300'}`
 
   const buildDescription = (base: string) => {
     if (selectedType !== 'echange' && selectedType !== 'pret') return base
@@ -247,8 +251,21 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
   }, [isCameraOpen])
 
   const handleSubmit = async () => {
-    if (!form.title.trim() || !form.category.trim() || !form.description.trim() || !form.location.trim()) {
-      onShowToast('Complete les champs obligatoires.', 'error')
+    const nextErrors: { category?: string; location?: string } = {}
+
+    if (!form.category.trim()) {
+      nextErrors.category = 'Choisis une categorie.'
+    }
+
+    if (!form.location.trim()) {
+      nextErrors.location = 'Renseigne la zone de remise.'
+    }
+
+    setFieldErrors(nextErrors)
+
+    if (Object.keys(nextErrors).length > 0) {
+      const firstMessage = nextErrors.category ?? nextErrors.location ?? 'Complete les champs obligatoires.'
+      onShowToast(firstMessage, 'error')
       return
     }
     if (photos.length === 0) {
@@ -271,6 +288,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
         ...form,
         type: selectedType as 'don' | 'echange' | 'pret',
         description: buildDescription(form.description),
+        condition: form.condition.trim() || undefined,
         photos
       })
       onItemCreated(response.data)
@@ -285,7 +303,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
   }
 
   return (
-    <div className="bg-gray-100 w-full h-full p-9 max-lg:p-5 max-md:pb-24 border-t-4 border-[#1E63D6] flex flex-col items-center">
+    <div className="bg-gray-100 w-full h-full p-9 max-lg:p-5 max-md:pb-24 border-t-4  flex flex-col items-center">
       {/* Header */}
       <div className="mb-7 w-full max-w-2xl">
         <BrandMark size="sm" className="mb-4" />
@@ -448,10 +466,10 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
 
         {/* Title */}
         <div className="mb-5.5 border-b border-gray-200 pb-5">
-          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Titre de l'objet *</label>
+          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Titre de l'objet</label>
           <input
             type="text"
-            placeholder="Ex : Physique Quantique - Cohen-Tannoudji"
+            placeholder="Optionnel : un titre sera genere automatiquement si tu laisses vide"
             value={form.title}
             onChange={(event) => setForm((currentForm) => ({ ...currentForm, title: event.target.value }))}
             className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white"
@@ -463,8 +481,12 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
           <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Catégorie *</label>
           <select
             value={form.category}
-            onChange={(event) => setForm((currentForm) => ({ ...currentForm, category: event.target.value }))}
-            className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white cursor-pointer"
+            onChange={(event) => {
+              const value = event.target.value
+              setForm((currentForm) => ({ ...currentForm, category: value }))
+              setFieldErrors((current) => ({ ...current, category: value.trim() ? undefined : current.category }))
+            }}
+            className={`${inputErrorClasses(Boolean(fieldErrors.category))} h-10 px-4 py-3.25 rounded-[12px] border-2 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white cursor-pointer`}
           >
             <option value="">Choisir une catégorie</option>
             <option>Livres et Cours</option>
@@ -475,13 +497,14 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
             <option>Loisirs et Sport</option>
             <option>Divers</option>
           </select>
+          {fieldErrors.category && <div className="mt-1 text-[12.5px] font-semibold text-rose-600">{fieldErrors.category}</div>}
         </div>
 
         {/* Description */}
         <div className="mb-5.5">
-          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Description *</label>
+          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Description</label>
           <textarea
-            placeholder="Decris l'etat, l'edition, les caracteristiques... Sois precis !"
+            placeholder="Optionnel : decris l'etat, l'edition, les caracteristiques ou accessoires."
             rows={3}
             value={form.description}
             onChange={(event) => setForm((currentForm) => ({ ...currentForm, description: event.target.value }))}
@@ -497,6 +520,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
             onChange={(event) => setForm((currentForm) => ({ ...currentForm, condition: event.target.value }))}
             className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#1E63D6] transition-all duration-180 bg-white cursor-pointer"
           >
+            <option value="">Non precise</option>
             <option value="Neuf / comme neuf">Neuf / comme neuf</option>
             <option value="Tres bon etat">Très bon état</option>
             <option value="Bon etat">Bon état</option>
@@ -601,14 +625,19 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
 
         {/* Location */}
         <div className="mb-5.5">
-          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2  block">Zone de remise</label>
+          <label className="text-[13.5px] font-bold text-[#0F172A] mb-2  block">Zone de remise *</label>
           <input
             type="text"
-            placeholder="Ex : Paris 14e, campus Orsay…"
+            placeholder="Ex : UCAD 2, bibliotheque universitaire, campus social..."
             value={form.location}
-            onChange={(event) => setForm((currentForm) => ({ ...currentForm, location: event.target.value }))}
-            className="w-full h-10 px-4 py-3.25 rounded-[12px] border-2 border-gray-300 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#2ECC8F] transition-all duration-180 bg-white"
+            onChange={(event) => {
+              const value = event.target.value
+              setForm((currentForm) => ({ ...currentForm, location: value }))
+              setFieldErrors((current) => ({ ...current, location: value.trim() ? undefined : current.location }))
+            }}
+            className={`${inputErrorClasses(Boolean(fieldErrors.location))} h-10 px-4 py-3.25 rounded-[12px] border-2 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#2ECC8F] transition-all duration-180 bg-white`}
           />
+          {fieldErrors.location && <div className="mt-1 text-[12.5px] font-semibold text-rose-600">{fieldErrors.location}</div>}
         </div>
 
         {/* Submit */}

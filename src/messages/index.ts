@@ -1,4 +1,4 @@
 export const publishItemMessages = {
   selectPhotos: 'Sélection de photos…',
-  publishSuccess: 'Objet publie avec succes !',
+  publishSuccess: 'Publication envoyee pour validation admin.',
 }

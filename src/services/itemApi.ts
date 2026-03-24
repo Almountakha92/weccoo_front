@@ -13,12 +13,16 @@ const parseResponse = async <T>(response: Response): Promise<ApiResponseDto<T>> 
 }
 
 export const fetchItems = async () => {
-  const response = await fetch(`${API_BASE_URL}/items`)
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    headers: getAuthHeaders()
+  })
   return parseResponse<ItemResponseDto[]>(response)
 }
 
 export const fetchItemById = async (itemId: string) => {
-  const response = await fetch(`${API_BASE_URL}/items/${itemId}`)
+  const response = await fetch(`${API_BASE_URL}/items/${itemId}`, {
+    headers: getAuthHeaders()
+  })
   return parseResponse<ItemResponseDto>(response)
 }
 

@@ -17,7 +17,8 @@ export const publishTypeOptionsDto: PublishTypeOptionDto[] = [
 
 export type { ApiResponseDto } from './common.dto'
 export type { SignupRequestDto, LoginRequestDto, AuthResponseDto } from './auth.dto'
+export type { AdminLoginRequestDto, AdminLoginResponseDto, AdminMfaConfirmRequestDto } from './admin-auth.dto'
 export type { ItemType, CreateItemRequestDto, ItemResponseDto } from './item.dto'
-export type { ConversationResponseDto, SendMessageRequestDto, MessageResponseDto } from './message.dto'
 export type { StatsResponseDto } from './stats.dto'
 export type { LikeReceivedResponseDto } from './like.dto'
+export type { CampusDto, CreateCampusRequestDto, CreateCampusAdminRequestDto, AdminUserDto, AuditLogDto } from './admin.dto'

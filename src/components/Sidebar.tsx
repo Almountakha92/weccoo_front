@@ -38,7 +38,7 @@ export default function Sidebar({ activeScreen, onNavigate, isAuthenticated, aut
   const displayInitials = authUser?.fullName ? getInitials(authUser.fullName) : '??'
 
   return (
-    <aside className="w-[260px] bg-[#FFFFFF] border-r border-[#E5E7EB] p-5 flex flex-col gap-6 sticky top-0 h-screen overflow-y-auto flex-shrink-0 max-lg:hidden">
+    <aside className="fixed inset-y-0 left-0 z-30 w-[260px] bg-[#FFFFFF] border-r border-[#E5E7EB] p-5 flex flex-col gap-6 overflow-y-auto flex-shrink-0 max-lg:hidden">
       
       {/* Logo */}
       <div className="flex items-center gap-3 px-3 pb-6 border-b border-[#E5E7EB] mb-2">

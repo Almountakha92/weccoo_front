@@ -20,6 +20,8 @@ export const signupSchema = z.object({
   password: z
     .string()
     .min(8, 'Le mot de passe doit contenir au moins 8 caracteres.')
+  ,
+  campusId: z.string().trim().min(1, 'Campus requis.')
 })
 
 export type SignupFormSchema = z.infer<typeof signupSchema>

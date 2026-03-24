@@ -9,6 +9,7 @@ interface ItemDetailProps {
   item: ItemResponseDto | null
   onNavigate: (screen: string) => void
   onItemArchived: (item: ItemResponseDto) => void
+  onToggleLike: (itemId: string) => void
   onShowToast: (message: string, type?: string) => void
 }
 
@@ -52,7 +53,25 @@ const getConditionMeta = (rawCondition: string) => {
   return { label: rawCondition, score: 3 }
 }
 
-export default function ItemDetail({ authUser, item, onNavigate, onItemArchived, onShowToast }: ItemDetailProps) {
+const moderationMeta: Record<ItemResponseDto['moderationStatus'], { label: string; classes: string; hint: string }> = {
+  pending: {
+    label: 'En attente de validation',
+    classes: 'bg-amber-100 text-amber-800',
+    hint: 'Un admin doit encore relire cette publication avant sa mise en ligne.'
+  },
+  approved: {
+    label: 'Publication validée',
+    classes: 'bg-emerald-100 text-emerald-800',
+    hint: 'Cette publication est visible par les autres étudiants.'
+  },
+  rejected: {
+    label: 'Publication rejetée',
+    classes: 'bg-rose-100 text-rose-800',
+    hint: "Cette publication n'est pas visible publiquement."
+  }
+}
+
+export default function ItemDetail({ authUser, item, onNavigate, onItemArchived, onToggleLike, onShowToast }: ItemDetailProps) {
   const [activeThumb, setActiveThumb] = React.useState(0)
   const [isArchiving, setIsArchiving] = React.useState(false)
   const ownerInitials = item?.ownerInitials ?? item?.ownerName?.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join('') ?? '??'
@@ -60,6 +79,14 @@ export default function ItemDetail({ authUser, item, onNavigate, onItemArchived,
   const isOwner = Boolean(authUser && item && authUser.id === item.ownerId)
   const whatsappUrl = item?.ownerWhatsappPhone ? `https://wa.me/${item.ownerWhatsappPhone.replace(/[^0-9]/g, '')}` : null
   const conditionMeta = item ? getConditionMeta(item.condition) : { label: '', score: 0 }
+  const moderationStatusMeta = item ? moderationMeta[item.moderationStatus] : null
+  const requireAuth = React.useCallback(
+    (message: string) => {
+      onShowToast(message, 'error')
+      onNavigate('auth')
+    },
+    [onNavigate, onShowToast],
+  )
 
   const handleArchive = () => {
     if (!item) return
@@ -188,6 +215,23 @@ export default function ItemDetail({ authUser, item, onNavigate, onItemArchived,
               </span>
             </div>
 
+            {isOwner && moderationStatusMeta && (
+              <div className="mb-5 rounded-[16px] border border-gray-200 bg-[#F8FAFC] p-4">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span className="text-[12px] font-extrabold text-gray-700">Statut de modération</span>
+                  <span className={`px-3 py-1 rounded-full text-[12px] font-extrabold ${moderationStatusMeta.classes}`}>
+                    {moderationStatusMeta.label}
+                  </span>
+                </div>
+                <p className="text-[13px] text-gray-600">{moderationStatusMeta.hint}</p>
+                {item.moderationStatus === 'rejected' && item.moderationNote && (
+                  <div className="mt-3 rounded-[12px] bg-rose-50 border border-rose-100 px-3 py-2 text-[13px] text-rose-700">
+                    Motif admin: {item.moderationNote}
+                  </div>
+                )}
+              </div>
+            )}
+
             <p className="text-[14.5px] text-gray-700 leading-relaxed mb-5">
               {item.description}
             </p>
@@ -227,6 +271,10 @@ export default function ItemDetail({ authUser, item, onNavigate, onItemArchived,
 	            {!isOwner && (
 	              <button
 	                onClick={() => {
+	                  if (!authUser) {
+	                    requireAuth('Connecte-toi pour contacter un propriétaire.')
+	                    return
+	                  }
 	                  if (!whatsappUrl) {
 	                    onShowToast('Numero WhatsApp indisponible.', 'error')
 	                    return
@@ -304,7 +352,13 @@ export default function ItemDetail({ authUser, item, onNavigate, onItemArchived,
 
                 <div className="flex gap-2.5">
                   <button
-                    onClick={() => onShowToast('❤️ Ajouté aux favoris !', 'success')}
+                    onClick={() => {
+                      if (!authUser) {
+                        requireAuth('Connecte-toi pour aimer un objet.')
+                        return
+                      }
+                      void onToggleLike(item.id)
+                    }}
                     className="flex-1 py-3 px-4 rounded-full border-2 border-[#2ECC8F] text-[#1DA870] font-bold bg-white cursor-pointer hover:bg-[#E8FAF3] transition-all duration-180 flex items-center justify-center gap-2"
                   >
                     <Heart className="w-4 h-4" />

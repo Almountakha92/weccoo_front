@@ -1,8 +1,7 @@
 import React from 'react'
-import { BookOpen, Pen, Bell, Shield, LogOut, Star, Package, RefreshCw, Clock, Heart } from 'lucide-react'
+import { BookOpen, Pen, Bell, Shield, LogOut, Star, Heart } from 'lucide-react'
 import type { AuthUserSession } from '../services/authToken'
-import type { ConversationResponseDto, ItemResponseDto, LikeReceivedResponseDto } from '../dto'
-import { fetchConversations } from '../services/messageApi'
+import type { ItemResponseDto, LikeReceivedResponseDto } from '../dto'
 import { fetchReceivedLikes } from '../services/itemApi'
 import { updateMe } from '../services/userApi'
 
@@ -20,14 +19,23 @@ interface ProfileProps {
 
 const formatCount = (value: number) => new Intl.NumberFormat('fr-FR').format(value)
 
-const getItemIcon = (category: string) => {
-  const normalized = category.toLowerCase()
-  if (normalized.includes('livre')) return BookOpen
-  return Package
+const moderationMeta: Record<ItemResponseDto['moderationStatus'], { label: string; classes: string; hint: string }> = {
+  pending: {
+    label: 'En attente',
+    classes: 'bg-amber-100 text-amber-800',
+    hint: 'En cours de relecture par un admin.'
+  },
+  approved: {
+    label: 'Validé',
+    classes: 'bg-emerald-100 text-emerald-800',
+    hint: 'Visible par les autres étudiants.'
+  },
+  rejected: {
+    label: 'Rejeté',
+    classes: 'bg-rose-100 text-rose-800',
+    hint: "L'article n'est pas publié."
+  }
 }
-
-const formatHistoryDate = (isoDate: string) =>
-  new Date(isoDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
 
 const formatRelativeDate = (isoDate: string) => {
   const createdAt = new Date(isoDate)
@@ -48,18 +56,6 @@ const formatRelativeDate = (isoDate: string) => {
   return createdAt.toLocaleDateString('fr-FR')
 }
 
-const historyBadgeByType: Record<ItemResponseDto['type'], { label: string; classes: string; leftIcon: React.ReactNode }> = {
-  don: { label: 'Don', classes: 'bg-[#D1FAE5] text-[#065F46]', leftIcon: <span className="text-[12px] leading-none">✓</span> },
-  echange: { label: 'Échange', classes: 'bg-[#DBEAFE] text-[#1E40AF]', leftIcon: <RefreshCw className="w-3.5 h-3.5" /> },
-  pret: { label: 'Prêt', classes: 'bg-[#FEF3C7] text-[#92400E]', leftIcon: <Clock className="w-3.5 h-3.5" /> },
-}
-
-const historyVerbByType: Record<ItemResponseDto['type'], string> = {
-  don: 'Don à',
-  echange: 'Échange avec',
-  pret: 'Prêt à',
-}
-
 export default function Profile({
   authUser,
   items,
@@ -75,9 +71,8 @@ export default function Profile({
   const publishedCount = userItems.length
   const exchangeCount = userItems.filter((item) => item.type === 'echange').length
   const donationCount = userItems.filter((item) => item.type === 'don').length
+  const pendingCount = userItems.filter((item) => item.moderationStatus === 'pending').length
   const [showAllMyItems, setShowAllMyItems] = React.useState(false)
-  const [conversations, setConversations] = React.useState<ConversationResponseDto[]>([])
-  const [isHistoryLoading, setIsHistoryLoading] = React.useState(false)
   const [likesReceived, setLikesReceived] = React.useState<LikeReceivedResponseDto[]>([])
   const [isLikesLoading, setIsLikesLoading] = React.useState(false)
   const [isEditPhoneOpen, setIsEditPhoneOpen] = React.useState(false)
@@ -145,28 +140,6 @@ export default function Profile({
 
   React.useEffect(() => {
     if (!authUser) {
-      setConversations([])
-      return
-    }
-
-    const loadHistory = async () => {
-      try {
-        setIsHistoryLoading(true)
-        const response = await fetchConversations(authUser.id)
-        setConversations(response.data)
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Impossible de charger l'historique."
-        onShowToast(message, 'error')
-      } finally {
-        setIsHistoryLoading(false)
-      }
-    }
-
-    void loadHistory()
-  }, [authUser, onShowToast])
-
-  React.useEffect(() => {
-    if (!authUser) {
       setLikesReceived([])
       return
     }
@@ -186,14 +159,6 @@ export default function Profile({
 
     void loadLikes()
   }, [authUser, onShowToast])
-
-  const historyRows = conversations
-    .map((conv) => {
-      const item = items.find((candidate) => candidate.id === conv.itemId) ?? null
-      const otherParticipantId = conv.participantIds.find((id) => id !== authUser?.id) ?? null
-      return { conv, item, otherParticipantId }
-    })
-    .filter((row) => row.item)
 
   return (
     <div className="bg-gray-100 min-h-screen p-9 max-lg:p-5 max-md:pb-24">
@@ -348,6 +313,10 @@ export default function Profile({
               <div className="text-[22px] font-extrabold text-white">{formatCount(donationCount)}</div>
               <div className="text-[12px] text-white/55">Dons</div>
             </div>
+            <div className="text-center">
+              <div className="text-[22px] font-extrabold text-white">{formatCount(pendingCount)}</div>
+              <div className="text-[12px] text-white/55">En attente</div>
+            </div>
           </div>
         </div>
       </div>
@@ -382,6 +351,9 @@ export default function Profile({
 	            
 	            <div className="grid grid-cols-2 gap-3.5">
 	              {visibleUserItems.map((item) => (
+                (() => {
+                  const status = moderationMeta[item.moderationStatus]
+                  return (
 	              <div 
 	                key={item.id}
 	                onClick={() => onSelectItem(item.id)}
@@ -407,58 +379,28 @@ export default function Profile({
 	                  <div className="absolute top-2.5 left-2.5 text-[10px] font-extrabold rounded-full px-2 py-0.5 bg-white/90 text-[#0F172A]">
 	                    {item.type}
 	                  </div>
+                    <div className={`absolute top-2.5 right-2.5 text-[10px] font-extrabold rounded-full px-2 py-0.5 ${status.classes}`}>
+                      {status.label}
+                    </div>
 	                </div>
 	                <div className="p-2.5">
 	                  <div className="text-[12.5px] font-extrabold text-[#0F172A] truncate">{item.title}</div>
 	                  <div className="text-[11.5px] text-gray-500 truncate">{item.category} · {item.condition}</div>
 	                  <div className="text-[11.5px] text-gray-500">Vues: {item.viewsCount} · J'aime: {item.likesCount}</div>
+                    <div className="mt-2 text-[11.5px] text-gray-600">{status.hint}</div>
+                    {item.moderationStatus === 'rejected' && item.moderationNote && (
+                      <div className="mt-2 rounded-[10px] bg-rose-50 border border-rose-100 px-2.5 py-2 text-[11.5px] text-rose-700">
+                        Motif admin: {item.moderationNote}
+                      </div>
+                    )}
 	                </div>
 	              </div>
+                  )
+                })()
 	              ))}
 	              {userItems.length === 0 && <div className="text-[13px] text-gray-500">Aucun objet publie pour le moment.</div>}
 	            </div>
 	          </div>
-
-          {/* History */}
-          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
-            <h2 className="text-[16px] font-extrabold text-[#0F172A] mb-4">Historique des échanges</h2>
-
-            {isHistoryLoading && (
-              <div className="text-[13px] text-gray-500">Chargement de l'historique...</div>
-            )}
-
-            {!isHistoryLoading && historyRows.length === 0 && (
-              <div className="text-[13px] text-gray-500">
-                Aucun échange pour le moment. Démarre une conversation depuis un objet pour qu’elle apparaisse ici.
-              </div>
-            )}
-
-            {!isHistoryLoading && historyRows.slice(0, 6).map(({ conv, item, otherParticipantId }, index) => {
-              if (!item) return null
-              const Icon = getItemIcon(item.category)
-              const badge = historyBadgeByType[item.type]
-              const verb = historyVerbByType[item.type]
-              const otherLabel = otherParticipantId ? `Étudiant ${otherParticipantId.slice(0, 6)}` : 'un étudiant'
-              const subtitle = `${verb} ${otherLabel} · ${formatHistoryDate(conv.createdAt)}`
-              const withBorder = index < Math.min(historyRows.length, 6) - 1 ? 'border-b border-gray-100' : ''
-
-              return (
-                <div key={conv.id} className={`flex items-center gap-3.5 py-3.5 ${withBorder}`}>
-                  <div className="w-11 h-11 rounded-[8px] bg-gray-100 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-bold text-[#0F172A] truncate">{item.title}</div>
-                    <div className="text-[12.5px] text-gray-500 truncate">{subtitle}</div>
-                  </div>
-                  <span className={`text-[11px] font-bold rounded-full px-2.5 py-1 flex items-center gap-1.5 ${badge.classes}`}>
-                    {badge.leftIcon}
-                    {badge.label}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
         </div>
 
         {/* Right Column */}

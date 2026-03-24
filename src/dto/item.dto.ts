@@ -1,10 +1,11 @@
 export type ItemType = 'don' | 'echange' | 'pret'
+export type ItemModerationStatus = 'pending' | 'approved' | 'rejected'
 
 export interface CreateItemRequestDto {
   title: string
   category: string
-  description: string
-  condition: string
+  description?: string
+  condition?: string
   type: ItemType
   location: string
   photos?: string[]
@@ -22,6 +23,9 @@ export interface ItemResponseDto {
   ownerName?: string
   ownerInitials?: string
   ownerWhatsappPhone?: string
+  moderationStatus: ItemModerationStatus
+  moderatedAt?: string | null
+  moderationNote?: string | null
   photos: string[]
   likesCount: number
   viewsCount: number

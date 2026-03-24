@@ -1,5 +1,5 @@
 import React from 'react'
-import { Package, ArrowRight, Plus, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, MapPin, Search, Bell, BellOff, Megaphone, PhoneCall, MessageCircle, MessageSquare } from 'lucide-react'
+import { Package, ArrowRight, Plus, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, MapPin, Search, Bell, BellOff, Megaphone, PhoneCall, MessageCircle } from 'lucide-react'
 import type { AuthResponseDto, ItemResponseDto } from '../dto'
 import BrandMark from '../components/BrandMark'
 
@@ -126,6 +126,13 @@ export default function Home({
   onOpenNotifications,
 }: HomeProps) {
   const [activeCat, setActiveCat] = React.useState('books')
+  const requireAuth = React.useCallback(
+    (message: string) => {
+      onShowToast(message, 'error')
+      onNavigate('auth')
+    },
+    [onNavigate, onShowToast],
+  )
   const filteredItems = items.filter((item) => matchesHomeCategory(item, activeCat))
   const recentItems = filteredItems.slice(0, 4)
   const myPublicationsCount = React.useMemo(() => {
@@ -367,6 +374,10 @@ export default function Home({
 	                      type="button"
 	                      onClick={(e) => {
 	                        e.stopPropagation()
+	                        if (!authUser) {
+	                          requireAuth('Connecte-toi pour contacter un propriétaire.')
+	                          return
+	                        }
 	                        if (!telUrl) {
 	                          onShowToast('Numéro indisponible.', 'error')
 	                          return
@@ -383,6 +394,10 @@ export default function Home({
 	                      type="button"
 	                      onClick={(e) => {
 	                        e.stopPropagation()
+	                        if (!authUser) {
+	                          requireAuth('Connecte-toi pour contacter un propriétaire.')
+	                          return
+	                        }
 	                        if (!whatsappUrl) {
 	                          onShowToast('Numéro WhatsApp indisponible.', 'error')
 	                          return
@@ -395,20 +410,8 @@ export default function Home({
 	                    >
 	                      <MessageCircle className="w-5 h-5" />
 	                    </button>
-	                    <button
-	                      type="button"
-	                      onClick={(e) => {
-	                        e.stopPropagation()
-	                        onNavigate('messages')
-	                      }}
-	                      className="w-11 h-11 rounded-full bg-[#F5C400] text-white flex items-center justify-center shadow-[0_8px_18px_rgba(245,196,0,0.25)] hover:bg-[#E0AC00] hover:-translate-y-0.5 transition-transform"
-	                      title="Message"
-	                      aria-label="Message"
-	                    >
-	                      <MessageSquare className="w-5 h-5" />
-	                    </button>
-	                  </div>
-	                )}
+                  </div>
+                )}
 	              </div>
 	            </div>
 	          )

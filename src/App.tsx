@@ -6,19 +6,31 @@ import Landing from './pages/Landing'
 import Home from './pages/Home'
 import ItemList from './pages/ItemList'
 import ItemDetail from './pages/ItemDetail'
-import Messages from './pages/Messages'
 import Profile from './pages/Profile'
 import PublishItem from './pages/PublishItem'
 import Announcements from './pages/Announcements'
 import Auth from './pages/Auth'
+import AdminAuth from './pages/AdminAuth'
+import AdminDashboard from './pages/AdminDashboard'
 import type { AuthResponseDto, ItemResponseDto } from './dto'
 import { fetchItems } from './services/itemApi'
 import { registerItemView, toggleItemLike } from './services/itemApi'
 import { clearAuthSession, getAuthToken, getAuthUser, setAuthUser as setAuthUserStorage } from './services/authToken'
+import { clearAdminToken, getAdminToken } from './services/adminAuthToken'
 import { fetchStats } from './services/statsApi'
 import type { StatsResponseDto } from './dto'
 
-type ScreenName = 'landing' | 'home' | 'list' | 'detail' | 'messages' | 'profile' | 'publish' | 'annonces' | 'auth'
+type ScreenName =
+  | 'landing'
+  | 'home'
+  | 'list'
+  | 'detail'
+  | 'profile'
+  | 'publish'
+  | 'annonces'
+  | 'auth'
+  | 'adminAuth'
+  | 'admin'
 
 const getNotificationsEnabledKey = (userId: string) => `students_notifications_enabled_${userId}`
 const getNotificationsLastSeenKey = (userId: string) => `students_notifications_last_seen_${userId}`
@@ -43,6 +55,7 @@ export default function App() {
   const [activeScreen, setActiveScreen] = useState<ScreenName>('landing')
   const [authToken, setAuthToken] = useState(() => getAuthToken())
   const [authUser, setAuthUser] = useState(() => getAuthUser())
+  const [adminToken, setAdminTokenState] = useState(() => getAdminToken())
   const [items, setItems] = useState<ItemResponseDto[]>([])
   const [stats, setStats] = useState<StatsResponseDto | null>(null)
   const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set())
@@ -54,6 +67,7 @@ export default function App() {
     type: '' as 'success' | 'error' | ''
   })
   const isAuthenticated = Boolean(authToken && authUser)
+  const isAdminAuthenticated = Boolean(adminToken)
   const [notificationsEnabled, setNotificationsEnabled] = useState(() =>
     authUser?.id ? getStoredNotificationsEnabled(authUser.id) : true
   )
@@ -65,17 +79,31 @@ export default function App() {
     setToast({ show: true, message, type: type as 'success' | 'error' | '' })
   }
 
+  const hasDesktopSidebar =
+    activeScreen !== 'auth' &&
+    activeScreen !== 'landing' &&
+    activeScreen !== 'annonces' &&
+    activeScreen !== 'adminAuth' &&
+    activeScreen !== 'admin'
+
   const hideToast = () => {
     setToast(prev => ({ ...prev, show: false }))
   }
 
   const handleNavigate = (screen: string) => {
     const targetScreen = screen as ScreenName
-    const protectedScreens: ScreenName[] = ['publish', 'messages', 'profile']
+    const protectedScreens: ScreenName[] = ['publish', 'profile']
 
     if (!isAuthenticated && protectedScreens.includes(targetScreen)) {
       setActiveScreen('auth')
       showToast('Connecte-toi pour acceder a cette fonctionnalite.', 'error')
+      window.scrollTo(0, 0)
+      return
+    }
+
+    if (targetScreen === 'admin' && !isAdminAuthenticated) {
+      setActiveScreen('adminAuth')
+      showToast('Connecte-toi en admin (MFA requis).', 'error')
       window.scrollTo(0, 0)
       return
     }
@@ -147,6 +175,10 @@ export default function App() {
   const handleAuthSuccess = (session: AuthResponseDto) => {
     setAuthToken(session.token)
     setAuthUser(session.user)
+  }
+
+  const handleAdminAuthSuccess = (token: string) => {
+    setAdminTokenState(token)
   }
 
   const handleAuthUserUpdated = (user: AuthResponseDto['user']) => {
@@ -285,6 +317,11 @@ export default function App() {
     showToast('Session fermee.', 'success')
   }
 
+  const handleAdminLogout = () => {
+    clearAdminToken()
+    setAdminTokenState(null)
+  }
+
   useEffect(() => {
     const userId = authUser?.id
     if (!userId) {
@@ -386,15 +423,7 @@ export default function App() {
             item={items.find((item) => item.id === selectedItemId) ?? null}
             onNavigate={handleNavigate}
             onItemArchived={handleItemArchived}
-            onShowToast={showToast}
-          />
-        )
-      case 'messages':
-        return (
-          <Messages
-            authUser={authUser}
-            items={items}
-            onNavigate={handleNavigate}
+            onToggleLike={handleToggleLike}
             onShowToast={showToast}
           />
         )
@@ -433,6 +462,23 @@ export default function App() {
             onAuthSuccess={handleAuthSuccess}
           />
         )
+      case 'adminAuth':
+        return (
+          <AdminAuth
+            onNavigate={handleNavigate}
+            onShowToast={showToast}
+            onAdminAuthSuccess={handleAdminAuthSuccess}
+          />
+        )
+      case 'admin':
+        return (
+          <AdminDashboard
+            onNavigate={handleNavigate}
+            onShowToast={showToast}
+            adminToken={adminToken ?? ''}
+            onAdminLogout={handleAdminLogout}
+          />
+        )
 	      default:
 	        return (
 	          <Home
@@ -456,8 +502,8 @@ export default function App() {
 
 	  return (
 	    <div className="flex min-h-screen bg-[#F0F7FF]">
-	      {/* Sidebar - Desktop */}
-	      {activeScreen !== 'auth' && activeScreen !== 'landing' && activeScreen !== 'annonces' && (
+      {/* Sidebar - Desktop */}
+	      {hasDesktopSidebar && (
 	        <Sidebar
 	          activeScreen={activeScreen}
 	          onNavigate={handleNavigate}
@@ -468,12 +514,12 @@ export default function App() {
 	      )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto min-w-0">
+      <main className={`flex-1 overflow-y-auto min-w-0 ${hasDesktopSidebar ? 'lg:ml-[260px]' : ''}`}>
         {renderScreen()}
       </main>
 
       {/* Bottom Nav - Mobile */}
-      {activeScreen !== 'auth' && activeScreen !== 'landing' && (
+      {activeScreen !== 'auth' && activeScreen !== 'landing' && activeScreen !== 'adminAuth' && activeScreen !== 'admin' && (
         <BottomNav activeScreen={activeScreen} onNavigate={handleNavigate} />
       )}
 

@@ -4,6 +4,7 @@ export interface SignupRequestDto {
   email: string
   whatsappPhone: string
   password: string
+  campusId: string
 }
 
 export interface LoginRequestDto {
@@ -19,5 +20,6 @@ export interface AuthResponseDto {
     email: string
     university: string
     whatsappPhone: string
+    campusId?: string | null
   }
 }

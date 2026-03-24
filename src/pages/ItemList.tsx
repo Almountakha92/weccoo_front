@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, Heart, MapPin, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, PhoneCall, MessageCircle, MessageSquare } from 'lucide-react'
+import { Search, Heart, MapPin, BookOpen, Laptop, Backpack, Shirt, Armchair, Gamepad2, PhoneCall, MessageCircle } from 'lucide-react'
 import type { ItemResponseDto } from '../dto'
 import type { AuthUserSession } from '../services/authToken'
 
@@ -100,6 +100,13 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
   // ✅ Un seul filtre actif à la fois
   const [activeFilter, setActiveFilter] = React.useState<string>('all')
   const [searchQuery, setSearchQuery] = React.useState('')
+  const requireAuth = React.useCallback(
+    (message: string) => {
+      onShowToast(message, 'error')
+      onNavigate('auth')
+    },
+    [onNavigate, onShowToast],
+  )
 
   // ✅ Active le filtre cliqué et désactive les autres
   const toggleFilter = (filterId: string) => {
@@ -256,6 +263,10 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
 	                      type="button"
 	                      onClick={(e) => {
 	                        e.stopPropagation()
+	                        if (!authUser) {
+	                          requireAuth('Connecte-toi pour contacter un propriétaire.')
+	                          return
+	                        }
 	                        if (!telUrl) {
 	                          onShowToast('Numéro indisponible.', 'error')
 	                          return
@@ -272,6 +283,10 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
 	                      type="button"
 	                      onClick={(e) => {
 	                        e.stopPropagation()
+	                        if (!authUser) {
+	                          requireAuth('Connecte-toi pour contacter un propriétaire.')
+	                          return
+	                        }
 	                        if (!whatsappUrl) {
 	                          onShowToast('Numéro WhatsApp indisponible.', 'error')
 	                          return
@@ -283,18 +298,6 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
 	                      aria-label="WhatsApp"
 	                    >
 	                      <MessageCircle className="w-5 h-5" />
-	                    </button>
-	                    <button
-	                      type="button"
-	                      onClick={(e) => {
-	                        e.stopPropagation()
-	                        onNavigate('messages')
-	                      }}
-	                      className="w-11 h-11 rounded-full bg-[#F5C400] text-white flex items-center justify-center shadow-[0_8px_18px_rgba(245,196,0,0.25)] hover:bg-[#E0AC00] hover:-translate-y-0.5 transition-transform"
-	                      title="Message"
-	                      aria-label="Message"
-	                    >
-	                      <MessageSquare className="w-5 h-5" />
 	                    </button>
 	                  </div>
 	                )}
