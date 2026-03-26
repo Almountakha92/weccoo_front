@@ -32,6 +32,63 @@ type ScreenName =
   | 'adminAuth'
   | 'admin'
 
+const pathToScreen = (pathname: string): ScreenName => {
+  switch (pathname) {
+    case '/':
+      return 'landing'
+    case '/home':
+      return 'home'
+    case '/items':
+      return 'list'
+    case '/profile':
+      return 'profile'
+    case '/publish':
+      return 'publish'
+    case '/annonces':
+      return 'annonces'
+    case '/auth':
+      return 'auth'
+    case '/admin/auth':
+      return 'adminAuth'
+    case '/admin':
+      return 'admin'
+    default:
+      return pathname.startsWith('/items/') ? 'detail' : 'landing'
+  }
+}
+
+const screenToPath = (screen: ScreenName, itemId?: string | null): string => {
+  switch (screen) {
+    case 'landing':
+      return '/'
+    case 'home':
+      return '/home'
+    case 'list':
+      return '/items'
+    case 'detail':
+      return itemId ? `/items/${itemId}` : '/items'
+    case 'profile':
+      return '/profile'
+    case 'publish':
+      return '/publish'
+    case 'annonces':
+      return '/annonces'
+    case 'auth':
+      return '/auth'
+    case 'adminAuth':
+      return '/admin/auth'
+    case 'admin':
+      return '/admin'
+    default:
+      return '/'
+  }
+}
+
+const getItemIdFromPath = (pathname: string) => {
+  const match = pathname.match(/^\/items\/([^/]+)$/)
+  return match ? decodeURIComponent(match[1]) : null
+}
+
 const getNotificationsEnabledKey = (userId: string) => `students_notifications_enabled_${userId}`
 const getNotificationsLastSeenKey = (userId: string) => `students_notifications_last_seen_${userId}`
 
@@ -52,7 +109,7 @@ const setStoredNotificationsLastSeen = (userId: string, iso: string) => {
 }
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState<ScreenName>('landing')
+  const [activeScreen, setActiveScreen] = useState<ScreenName>(() => pathToScreen(window.location.pathname))
   const [authToken, setAuthToken] = useState(() => getAuthToken())
   const [authUser, setAuthUser] = useState(() => getAuthUser())
   const [adminToken, setAdminTokenState] = useState(() => getAdminToken())
@@ -90,26 +147,33 @@ export default function App() {
     setToast(prev => ({ ...prev, show: false }))
   }
 
+  const navigateToScreen = (screen: ScreenName, options?: { itemId?: string | null; replace?: boolean }) => {
+    const nextPath = screenToPath(screen, options?.itemId)
+    if (window.location.pathname !== nextPath) {
+      const historyMethod = options?.replace ? 'replaceState' : 'pushState'
+      window.history[historyMethod](null, '', nextPath)
+    }
+    setActiveScreen(screen)
+    window.scrollTo(0, 0)
+  }
+
   const handleNavigate = (screen: string) => {
     const targetScreen = screen as ScreenName
     const protectedScreens: ScreenName[] = ['publish', 'profile']
 
     if (!isAuthenticated && protectedScreens.includes(targetScreen)) {
-      setActiveScreen('auth')
+      navigateToScreen('auth')
       showToast('Connecte-toi pour acceder a cette fonctionnalite.', 'error')
-      window.scrollTo(0, 0)
       return
     }
 
     if (targetScreen === 'admin' && !isAdminAuthenticated) {
-      setActiveScreen('adminAuth')
+      navigateToScreen('adminAuth')
       showToast('Connecte-toi en admin (MFA requis).', 'error')
-      window.scrollTo(0, 0)
       return
     }
 
-    setActiveScreen(targetScreen)
-    window.scrollTo(0, 0)
+    navigateToScreen(targetScreen)
   }
 
   const loadItems = async () => {
@@ -128,8 +192,7 @@ export default function App() {
 
   const handleSelectItem = (itemId: string) => {
     setSelectedItemId(itemId)
-    setActiveScreen('detail')
-    window.scrollTo(0, 0)
+    navigateToScreen('detail', { itemId })
 
     void (async () => {
       try {
@@ -313,7 +376,7 @@ export default function App() {
     setLikedItemIds(new Set())
     setNotificationsEnabled(true)
     setNotificationsLastSeenAt(null)
-    setActiveScreen('auth')
+    navigateToScreen('auth', { replace: true })
     showToast('Session fermee.', 'success')
   }
 
@@ -356,6 +419,27 @@ export default function App() {
   useEffect(() => {
     void loadItems()
   }, [])
+
+  useEffect(() => {
+    const syncScreenFromLocation = () => {
+      const nextScreen = pathToScreen(window.location.pathname)
+      const itemIdFromPath = getItemIdFromPath(window.location.pathname)
+      setActiveScreen(nextScreen)
+      setSelectedItemId(itemIdFromPath)
+    }
+
+    syncScreenFromLocation()
+    window.addEventListener('popstate', syncScreenFromLocation)
+    return () => window.removeEventListener('popstate', syncScreenFromLocation)
+  }, [])
+
+  useEffect(() => {
+    if (activeScreen !== 'detail') return
+    if (selectedItemId) return
+    if (!items.length) return
+
+    navigateToScreen('list', { replace: true })
+  }, [activeScreen, items.length, selectedItemId])
 
   useEffect(() => {
     void (async () => {
