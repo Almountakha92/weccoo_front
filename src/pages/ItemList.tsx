@@ -149,7 +149,9 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
       <div className="mb-6">
         <h2 className="font-[Cabinet_Grotesk] text-[22px] sm:text-[28px] font-extrabold text-[#1E63D6] mb-1">Explorer les objets</h2>
         <p className="text-[13.5px] sm:text-[14.5px] text-gray-500">
-          {isLoading ? 'Chargement des objets...' : `${formatCount(count)} ${countLabel} disponibles autour de toi`}
+          {isLoading
+            ? 'Chargement des objets...'
+            : `${formatCount(count)} ${countLabel} ${authUser ? 'disponibles sur ton campus' : 'publies sur la plateforme'}`}
         </p>
       </div>
 

@@ -3,4 +3,5 @@ export interface StatsResponseDto {
   usersCount: number
   totalLikesCount: number
   totalViewsCount: number
+  scope: 'global' | 'campus'
 }

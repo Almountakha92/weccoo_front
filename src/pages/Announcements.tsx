@@ -6,6 +6,7 @@ import type { AuthUserSession } from '../services/authToken'
 interface AnnouncementsProps {
   authUser: AuthUserSession | null
   onNavigate: (screen: string) => void
+  onAnnouncementCreated?: () => void
 }
 
 type Announcement = {
@@ -14,6 +15,7 @@ type Announcement = {
   body: string
   createdAt: string
   ownerId: string | null
+  campusId: string | null
   archivedAt: string | null
 }
 
@@ -36,6 +38,7 @@ const loadAnnouncementsFromStorage = (): Announcement[] => {
         body: entry.body,
         createdAt: entry.createdAt,
         ownerId: entry.ownerId ?? null,
+        campusId: typeof entry.campusId === 'string' ? entry.campusId : null,
         archivedAt: entry.archivedAt ?? null,
       })
     }
@@ -50,7 +53,7 @@ const saveAnnouncementsToStorage = (announcements: Announcement[]) => {
   localStorage.setItem(ANNOUNCEMENTS_STORAGE_KEY, JSON.stringify(announcements))
 }
 
-export default function Announcements({ authUser, onNavigate }: AnnouncementsProps) {
+export default function Announcements({ authUser, onNavigate, onAnnouncementCreated }: AnnouncementsProps) {
   const phrases = React.useMemo(
     () => [
       'Bienvenue dans la rubrique Annonces',
@@ -77,8 +80,13 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
     setAnnouncements(loadAnnouncementsFromStorage())
   }, [])
 
-  const activeAnnouncements = announcements.filter((announcement) => !announcement.archivedAt)
-  const archivedAnnouncements = announcements.filter((announcement) => Boolean(announcement.archivedAt))
+  const campusAnnouncements = React.useMemo(() => {
+    if (!authUser?.campusId) return []
+    return announcements.filter((announcement) => announcement.campusId === authUser.campusId)
+  }, [announcements, authUser?.campusId])
+
+  const activeAnnouncements = campusAnnouncements.filter((announcement) => !announcement.archivedAt)
+  const archivedAnnouncements = campusAnnouncements.filter((announcement) => Boolean(announcement.archivedAt))
 
   const formatDateTime = (iso: string) => {
     const date = new Date(iso)
@@ -142,7 +150,7 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
                 </div>
               </div>
               <div className="text-[13.5px] text-gray-600 leading-relaxed mt-2">
-                Reste informé(e) des nouveautés, événements et messages importants publiés par la communauté.
+                Reste informé(e) des nouveautés, événements et messages importants publiés dans ton campus.
               </div>
             </div>
           </div>
@@ -155,7 +163,16 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
 	            <Megaphone className="w-6 h-6 text-white" />
 	          </div>
 	          <div className="min-w-0">
-	            {activeAnnouncements.length === 0 ? (
+	            {!authUser?.campusId ? (
+	              <>
+	                <div className="font-[Cabinet_Grotesk] text-[24px] font-extrabold text-[#0F172A] leading-tight mb-1">
+	                  Connecte-toi pour voir les annonces
+	                </div>
+	                <div className="text-[14px] text-gray-600 leading-relaxed mb-5">
+	                  Les annonces sont visibles uniquement par les étudiants de leur campus.
+	                </div>
+	              </>
+	            ) : activeAnnouncements.length === 0 ? (
 	              <>
 	                <div className="font-[Cabinet_Grotesk] text-[24px] font-extrabold text-[#0F172A] leading-tight mb-1">
 	                  Aucune annonce pour le moment
@@ -170,7 +187,7 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
                   Annonces récentes
                 </div>
                 <div className="text-[14px] text-gray-600 leading-relaxed mb-5">
-                  Lis les dernières annonces publiées par la communauté.
+                  Lis les dernières annonces publiées dans ton campus.
                 </div>
               </>
             )}
@@ -237,6 +254,10 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
 	          <form
 	            onSubmit={(e) => {
 	              e.preventDefault()
+                if (!authUser?.campusId) {
+                  onNavigate('auth')
+                  return
+                }
 	              const nowIso = new Date().toISOString()
 	              const id =
 	                typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -248,11 +269,13 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
 	                body: draftBody.trim(),
 	                createdAt: nowIso,
 	                ownerId: authUser?.id ?? null,
+                  campusId: authUser.campusId,
 	                archivedAt: null,
 	              }
 	              const nextAnnouncements = [nextAnnouncement, ...announcements].slice(0, 50)
 	              setAnnouncements(nextAnnouncements)
 	              saveAnnouncementsToStorage(nextAnnouncements)
+                onAnnouncementCreated?.()
 	              setSuccessMessage('Annonce publiée avec succès.')
               setDraftTitle('')
               setDraftBody('')

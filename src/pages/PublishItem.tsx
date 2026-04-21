@@ -540,10 +540,10 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
                   setSelectedType(type.id)
                   setForm((currentForm) => ({ ...currentForm, type: type.id }))
                   if (type.id === 'echange') {
-                    setIsExchangeFormOpen(true)
+                    setIsExchangeFormOpen(false)
                     resetLoanDetails()
                   } else if (type.id === 'pret') {
-                    setIsLoanFormOpen(true)
+                    setIsLoanFormOpen(false)
                     resetExchangeDetails()
                   } else {
                     resetExchangeDetails()

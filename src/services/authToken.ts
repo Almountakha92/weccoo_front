@@ -7,6 +7,7 @@ export interface AuthUserSession {
   email: string
   university: string
   whatsappPhone: string
+  campusId?: string | null
 }
 
 const readLegacyLocalStorageValue = (key: string) => {

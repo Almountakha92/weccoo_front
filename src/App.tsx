@@ -91,6 +91,15 @@ const getItemIdFromPath = (pathname: string) => {
 
 const getNotificationsEnabledKey = (userId: string) => `students_notifications_enabled_${userId}`
 const getNotificationsLastSeenKey = (userId: string) => `students_notifications_last_seen_${userId}`
+const ANNOUNCEMENTS_STORAGE_KEY = 'students_announcements_v1'
+
+type AnnouncementNotification = {
+  id: string
+  createdAt: string
+  ownerId: string | null
+  campusId: string | null
+  archivedAt: string | null
+}
 
 const getStoredNotificationsEnabled = (userId: string) => {
   const raw = localStorage.getItem(getNotificationsEnabledKey(userId))
@@ -115,6 +124,7 @@ export default function App() {
   const [adminToken, setAdminTokenState] = useState(() => getAdminToken())
   const [items, setItems] = useState<ItemResponseDto[]>([])
   const [stats, setStats] = useState<StatsResponseDto | null>(null)
+  const [announcementRefreshKey, setAnnouncementRefreshKey] = useState(0)
   const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set())
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [isItemsLoading, setIsItemsLoading] = useState(true)
@@ -123,6 +133,7 @@ export default function App() {
     message: '',
     type: '' as 'success' | 'error' | ''
   })
+  const approvedItems = useMemo(() => items.filter((item) => item.moderationStatus === 'approved'), [items])
   const isAuthenticated = Boolean(authToken && authUser)
   const isAdminAuthenticated = Boolean(adminToken)
   const [notificationsEnabled, setNotificationsEnabled] = useState(() =>
@@ -159,7 +170,7 @@ export default function App() {
 
   const handleNavigate = (screen: string) => {
     const targetScreen = screen as ScreenName
-    const protectedScreens: ScreenName[] = ['publish', 'profile', 'home', 'list', 'detail']
+    const protectedScreens: ScreenName[] = ['publish', 'profile']
 
     if (!isAuthenticated && protectedScreens.includes(targetScreen)) {
       navigateToScreen('auth')
@@ -249,6 +260,39 @@ export default function App() {
     setAuthUserStorage(user)
   }
 
+  const announcements = useMemo<AnnouncementNotification[]>(() => {
+    const raw = localStorage.getItem(ANNOUNCEMENTS_STORAGE_KEY)
+    if (!raw) return []
+
+    try {
+      const parsed = JSON.parse(raw) as Array<Partial<AnnouncementNotification>>
+      if (!Array.isArray(parsed)) return []
+
+      return parsed
+        .filter((entry) => entry?.id && entry?.createdAt)
+        .map((entry) => ({
+          id: String(entry.id),
+          createdAt: String(entry.createdAt),
+          ownerId: typeof entry.ownerId === 'string' ? entry.ownerId : null,
+          campusId: typeof entry.campusId === 'string' ? entry.campusId : null,
+          archivedAt: typeof entry.archivedAt === 'string' ? entry.archivedAt : null,
+        }))
+    } catch {
+      return []
+    }
+  }, [announcementRefreshKey])
+
+  const campusAnnouncements = useMemo(
+    () =>
+      announcements.filter(
+        (announcement) =>
+          !announcement.archivedAt &&
+          Boolean(authUser?.campusId) &&
+          announcement.campusId === authUser?.campusId
+      ),
+    [announcements, authUser?.campusId]
+  )
+
   useEffect(() => {
     if (!authUser?.id) {
       setNotificationsEnabled(true)
@@ -308,6 +352,17 @@ export default function App() {
     return () => window.clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === ANNOUNCEMENTS_STORAGE_KEY) {
+        setAnnouncementRefreshKey((current) => current + 1)
+      }
+    }
+
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   const notificationsUnreadCount = useMemo(() => {
     if (!isAuthenticated || !authUser?.id || !notificationsEnabled) return 0
     const lastSeenIso = notificationsLastSeenAt
@@ -324,8 +379,17 @@ export default function App() {
         count += 1
       }
     }
+
+    for (const announcement of campusAnnouncements) {
+      if (announcement.ownerId === authUser.id) continue
+      const created = new Date(announcement.createdAt).getTime()
+      if (Number.isFinite(created) && created > lastSeen) {
+        count += 1
+      }
+    }
+
     return count
-  }, [authUser?.id, isAuthenticated, items, notificationsEnabled, notificationsLastSeenAt])
+  }, [authUser?.id, campusAnnouncements, isAuthenticated, items, notificationsEnabled, notificationsLastSeenAt])
 
   const handleToggleNotifications = (enabled: boolean) => {
     if (!authUser?.id) return
@@ -341,10 +405,22 @@ export default function App() {
 
   const markNotificationsAsRead = () => {
     if (!authUser?.id) return
-    const newest = items.reduce<string | null>((acc, item) => {
+    const newestItem = items.reduce<string | null>((acc, item) => {
       if (item.ownerId === authUser.id) return acc
       if (!acc) return item.createdAt
       return new Date(item.createdAt).getTime() > new Date(acc).getTime() ? item.createdAt : acc
+    }, null)
+
+    const newestAnnouncement = campusAnnouncements.reduce<string | null>((acc, announcement) => {
+      if (announcement.ownerId === authUser.id) return acc
+      if (!acc) return announcement.createdAt
+      return new Date(announcement.createdAt).getTime() > new Date(acc).getTime() ? announcement.createdAt : acc
+    }, null)
+
+    const newestCandidates = [newestItem, newestAnnouncement].filter(Boolean) as string[]
+    const newest = newestCandidates.reduce<string | null>((acc, current) => {
+      if (!acc) return current
+      return new Date(current).getTime() > new Date(acc).getTime() ? current : acc
     }, null)
 
     const iso = newest ?? new Date().toISOString()
@@ -360,13 +436,13 @@ export default function App() {
     }
 
     if (notificationsUnreadCount === 0) {
-      showToast('Aucune nouvelle publication.', '')
+      showToast('Aucune nouvelle notification.', '')
       return
     }
 
-    showToast(`${notificationsUnreadCount} nouvelle(s) publication(s) !`, 'success')
+    showToast(`${notificationsUnreadCount} nouvelle(s) notification(s) !`, 'success')
     markNotificationsAsRead()
-    handleNavigate('list')
+    handleNavigate('annonces')
   }
 
   const handleLogout = () => {
@@ -451,7 +527,7 @@ export default function App() {
         setStats(null)
       }
     })()
-  }, [])
+  }, [authToken, authUser?.campusId])
 
   // Keyboard shortcut
   useEffect(() => {
@@ -473,13 +549,14 @@ export default function App() {
         return (
           <Home
             authUser={authUser}
-            itemsCount={stats?.itemsCount ?? items.length}
+            itemsCount={stats?.itemsCount ?? approvedItems.length}
             usersCount={stats?.usersCount ?? 0}
-            totalLikesCount={stats?.totalLikesCount ?? items.reduce((sum, item) => sum + item.likesCount, 0)}
-            totalViewsCount={stats?.totalViewsCount ?? items.reduce((sum, item) => sum + item.viewsCount, 0)}
+            totalLikesCount={stats?.totalLikesCount ?? approvedItems.reduce((sum, item) => sum + item.likesCount, 0)}
+            totalViewsCount={stats?.totalViewsCount ?? approvedItems.reduce((sum, item) => sum + item.viewsCount, 0)}
+            statsScope={stats?.scope ?? (authUser ? 'campus' : 'global')}
             notificationsEnabled={notificationsEnabled}
             notificationsUnreadCount={notificationsUnreadCount}
-            items={items}
+            items={approvedItems}
             likedItemIds={likedItemIds}
             isLoading={isItemsLoading}
             onNavigate={handleNavigate}
@@ -493,7 +570,7 @@ export default function App() {
 	        return (
 	          <ItemList
 	            authUser={authUser}
-	            items={items}
+	            items={approvedItems}
 	            likedItemIds={likedItemIds}
 	            isLoading={isItemsLoading}
 	            onNavigate={handleNavigate}
@@ -514,7 +591,13 @@ export default function App() {
           />
         )
       case 'annonces':
-        return <Announcements authUser={authUser} onNavigate={handleNavigate} />
+        return (
+          <Announcements
+            authUser={authUser}
+            onNavigate={handleNavigate}
+            onAnnouncementCreated={() => setAnnouncementRefreshKey((current) => current + 1)}
+          />
+        )
       case 'profile':
         return (
           <Profile

@@ -28,7 +28,7 @@ const moderationMeta: Record<ItemResponseDto['moderationStatus'], { label: strin
   approved: {
     label: 'Validé',
     classes: 'bg-emerald-100 text-emerald-800',
-    hint: 'Visible par les autres étudiants.'
+    hint: 'Visible par les autres etudiants de ton campus.'
   },
   rejected: {
     label: 'Rejeté',

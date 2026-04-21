@@ -9,6 +9,7 @@ interface HomeProps {
   usersCount: number
   totalLikesCount: number
   totalViewsCount: number
+  statsScope?: 'global' | 'campus'
   notificationsEnabled: boolean
   notificationsUnreadCount: number
   items: ItemResponseDto[]
@@ -120,6 +121,7 @@ export default function Home({
   usersCount,
   totalLikesCount,
   totalViewsCount,
+  statsScope = 'campus',
   notificationsEnabled,
   notificationsUnreadCount,
   items,
@@ -141,6 +143,7 @@ export default function Home({
   )
   const filteredItems = items.filter((item) => matchesHomeCategory(item, activeCat))
   const recentItems = filteredItems.slice(0, 4)
+  const isCampusScoped = statsScope === 'campus'
   const myPublicationsCount = React.useMemo(() => {
     if (!authUser?.id) return 0
     let count = 0
@@ -183,7 +186,7 @@ export default function Home({
         
         <div className="flex-1 z-10 w-full">
           <div className="inline-flex items-center gap-1.5 bg-[rgba(46,204,143,0.18)] text-[#F5C400] border border-[rgba(46,204,143,0.3)] rounded-full px-4 py-2 text-sm font-bold mb-5">
-            Plateforme d'échange entre étudiants
+            {isCampusScoped ? 'Echanges reserves a ton campus' : "Plateforme d'echange entre etudiants"}
           </div>
           <h1 className="font-[Cabinet_Grotesk] text-[40px] font-extrabold text-white leading-[1.15] mb-4 max-md:text-[28px]">
             Échange, partage<br />
@@ -191,7 +194,9 @@ export default function Home({
             entre étudiants
           </h1>
           <p className="text-white/65 text-base leading-relaxed mb-8 max-w-[420px]">
-            Rejoins ta communauté campus. Donne une seconde vie à tes affaires et trouve ce dont tu as besoin gratuitement.
+            {isCampusScoped
+              ? 'Retrouve uniquement les publications de ton campus. Donne une seconde vie a tes affaires et trouve ce dont tu as besoin dans ta communaute etudiante.'
+              : 'Rejoins ta communaute campus. Donne une seconde vie a tes affaires et trouve ce dont tu as besoin gratuitement.'}
           </p>
           <div className="flex gap-3 flex-wrap">
             <button
@@ -250,7 +255,9 @@ export default function Home({
           </div>
           <div>
             <div className="font-[Cabinet_Grotesk] text-[28px] font-extrabold text-[#0F172A]">{formatCount(itemsCount)}</div>
-            <div className="text-[13px] text-gray-500 font-medium">Objets disponibles</div>
+            <div className="text-[13px] text-gray-500 font-medium">
+              {isCampusScoped ? 'Objets disponibles sur ton campus' : 'Objets disponibles'}
+            </div>
           </div>
         </div>
         <button
@@ -312,7 +319,7 @@ export default function Home({
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-[Cabinet_Grotesk] text-xl font-extrabold text-[#0F172A] flex items-center gap-2">
           <MapPin className="w-5 h-5" />
-          Près de chez toi
+          {isCampusScoped ? 'Sur ton campus' : 'Pres de chez toi'}
         </h2>
         <button 
           onClick={() => onNavigate('list')}

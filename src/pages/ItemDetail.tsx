@@ -62,7 +62,7 @@ const moderationMeta: Record<ItemResponseDto['moderationStatus'], { label: strin
   approved: {
     label: 'Publication validée',
     classes: 'bg-emerald-100 text-emerald-800',
-    hint: 'Cette publication est visible par les autres étudiants.'
+    hint: 'Cette publication est visible par les autres etudiants de ton campus.'
   },
   rejected: {
     label: 'Publication rejetée',
