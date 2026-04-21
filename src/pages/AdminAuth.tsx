@@ -1,4 +1,5 @@
 import React from 'react'
+import { Eye } from 'lucide-react'
 import BrandMark from '../components/BrandMark'
 import { adminLogin, confirmAdminMfa } from '../services/adminAuthApi'
 import { setAdminToken } from '../services/adminAuthToken'
@@ -11,6 +12,7 @@ interface AdminAuthProps {
 
 export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess }: AdminAuthProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [showPassword, setShowPassword] = React.useState(false)
   const [setup, setSetup] = React.useState<null | { preAuthToken: string; secret: string; otpauthUrl: string }>(null)
   const [form, setForm] = React.useState({
     email: '',
@@ -86,7 +88,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">Email</label>
             <input
-              autoComplete="off"
+              autoComplete="nope"
               value={form.email}
               onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="admin@weccoo.sn"
@@ -96,20 +98,30 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">Mot de passe</label>
-            <input
-              autoComplete="off"
-              value={form.password}
-              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-              type="password"
-              placeholder="********"
-              className="w-full px-4 py-3 rounded-[14px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1E63D6]/30"
-            />
+            <div className="relative">
+              <input
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="********"
+                className="w-full px-4 py-3 rounded-[14px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1E63D6]/30 pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#1E63D6] transition-colors"
+                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              >
+                <Eye className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">OTP (si déjà activé)</label>
             <input
-              autoComplete="off"
+              autoComplete="nope"
               value={form.otp}
               onChange={(e) => setForm((prev) => ({ ...prev, otp: e.target.value }))}
               placeholder="123456"
@@ -147,7 +159,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
               <div className="mb-3">
                 <div className="text-[12px] font-extrabold text-gray-700 mb-1.5">OTP (depuis l’application)</div>
                 <input
-                  autoComplete="off"
+                  autoComplete="nope"
                   value={form.setupOtp}
                   onChange={(e) => setForm((prev) => ({ ...prev, setupOtp: e.target.value }))}
                   placeholder="123456"

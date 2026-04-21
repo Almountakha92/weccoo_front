@@ -159,7 +159,7 @@ export default function App() {
 
   const handleNavigate = (screen: string) => {
     const targetScreen = screen as ScreenName
-    const protectedScreens: ScreenName[] = ['publish', 'profile']
+    const protectedScreens: ScreenName[] = ['publish', 'profile', 'home', 'list', 'detail']
 
     if (!isAuthenticated && protectedScreens.includes(targetScreen)) {
       navigateToScreen('auth')

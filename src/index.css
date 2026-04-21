@@ -159,6 +159,16 @@ h1, h2, h3, h4, h5, h6 {
 /* Custom utilities */
 /* Gradient removed - using solid colors */
 
+/* Remove Safari/Chrome autofill yellow background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: var(--navy) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Fix for the bottom nav on mobile */
 @media (max-width: 1023px) {
   .bottom-nav {

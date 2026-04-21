@@ -30,7 +30,7 @@ export default function Landing({ onNavigate }: LandingProps) {
           <BrandMark size="sm" showWordmark />
           <button
             type="button"
-            onClick={() => onNavigate('home')}
+            onClick={() => onNavigate('auth')}
             className="px-5 py-2.5 rounded-full bg-[#1E63D6] text-white text-sm font-extrabold shadow-[0_8px_24px_rgba(30,99,214,0.22)]"
           >
             Continuer
@@ -57,7 +57,7 @@ export default function Landing({ onNavigate }: LandingProps) {
               <div className="mt-6 flex flex-col gap-3">
                 <button
                   type="button"
-                  onClick={() => onNavigate('home')}
+                  onClick={() => onNavigate('auth')}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#F5C400] px-5 py-3.5 text-[15px] font-extrabold text-white shadow-[0_12px_32px_rgba(245,196,0,0.28)]"
                 >
                   Explorer maintenant
@@ -110,14 +110,14 @@ export default function Landing({ onNavigate }: LandingProps) {
           <section className="mt-4 rounded-[20px] bg-[#0F172A] px-5 py-5 text-white shadow-[0_12px_36px_rgba(15,23,42,0.16)]">
             <div className="text-[18px] font-extrabold">Prêt à commencer ?</div>
             <p className="mt-2 text-[14px] leading-6 text-white/75">
-              Parcours les publications librement, puis connecte-toi quand tu veux publier ou contacter un propriétaire.
+              Connecte-toi pour explorer les publications exclusives de ton campus et échanger avec les autres étudiants.
             </p>
             <button
               type="button"
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('auth')}
               className="mt-4 w-full rounded-full bg-white px-5 py-3 text-[14px] font-extrabold text-[#0F172A]"
             >
-              Accéder à l’accueil
+              Se connecter
             </button>
           </section>
         </main>
@@ -136,7 +136,7 @@ export default function Landing({ onNavigate }: LandingProps) {
             </button>
             <button
               type="button"
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('auth')}
               className="px-5 py-2.5 rounded-full bg-[#1E63D6] text-white font-extrabold shadow-[0_8px_32px_rgba(30,99,214,0.25)] hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(30,99,214,0.35)] transition-all duration-200"
             >
               Continuer
@@ -169,7 +169,7 @@ export default function Landing({ onNavigate }: LandingProps) {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => onNavigate('home')}
+                    onClick={() => onNavigate('auth')}
                     className="group inline-flex items-center gap-2.5 px-7 py-4 rounded-full bg-[#F5C400] text-white font-extrabold text-[15px] shadow-[0_12px_40px_rgba(245,196,0,0.28)] hover:-translate-y-0.5 hover:shadow-[0_14px_46px_rgba(245,196,0,0.36)] transition-all duration-200"
                   >
                     Explorer maintenant
@@ -233,10 +233,10 @@ export default function Landing({ onNavigate }: LandingProps) {
             </div>
             <button
               type="button"
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('auth')}
               className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#1E63D6] text-white font-extrabold hover:-translate-y-0.5 transition-all duration-200 shadow-[0_8px_32px_rgba(30,99,214,0.25)]"
             >
-              Continuer
+              Se connecter
               <ArrowRight className="w-5 h-5 animate-blink-right" />
             </button>
           </section>
