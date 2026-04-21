@@ -7,6 +7,8 @@ interface HomeProps {
   authUser: AuthResponseDto['user'] | null
   itemsCount: number
   usersCount: number
+  totalLikesCount: number
+  totalViewsCount: number
   notificationsEnabled: boolean
   notificationsUnreadCount: number
   items: ItemResponseDto[]
@@ -20,6 +22,7 @@ interface HomeProps {
 }
 
 const categories = [
+  { id: 'all', label: 'Toutes', icon: Package },
   { id: 'books', label: 'Livres', icon: BookOpen },
   { id: 'electronics', label: 'Électronique', icon: Laptop },
   { id: 'supplies', label: 'Fournitures', icon: Backpack },
@@ -114,6 +117,9 @@ const formatCount = (count: number) => new Intl.NumberFormat('fr-FR').format(cou
 export default function Home({
   authUser,
   itemsCount,
+  usersCount,
+  totalLikesCount,
+  totalViewsCount,
   notificationsEnabled,
   notificationsUnreadCount,
   items,
@@ -125,7 +131,7 @@ export default function Home({
   onShowToast,
   onOpenNotifications,
 }: HomeProps) {
-  const [activeCat, setActiveCat] = React.useState('books')
+  const [activeCat, setActiveCat] = React.useState('all')
   const requireAuth = React.useCallback(
     (message: string) => {
       onShowToast(message, 'error')

@@ -475,6 +475,8 @@ export default function App() {
             authUser={authUser}
             itemsCount={stats?.itemsCount ?? items.length}
             usersCount={stats?.usersCount ?? 0}
+            totalLikesCount={stats?.totalLikesCount ?? items.reduce((sum, item) => sum + item.likesCount, 0)}
+            totalViewsCount={stats?.totalViewsCount ?? items.reduce((sum, item) => sum + item.viewsCount, 0)}
             notificationsEnabled={notificationsEnabled}
             notificationsUnreadCount={notificationsUnreadCount}
             items={items}
@@ -569,6 +571,8 @@ export default function App() {
 	            authUser={authUser}
             itemsCount={stats?.itemsCount ?? items.length}
             usersCount={stats?.usersCount ?? 0}
+            totalLikesCount={stats?.totalLikesCount ?? items.reduce((sum, item) => sum + item.likesCount, 0)}
+            totalViewsCount={stats?.totalViewsCount ?? items.reduce((sum, item) => sum + item.viewsCount, 0)}
             notificationsEnabled={notificationsEnabled}
             notificationsUnreadCount={notificationsUnreadCount}
             items={items}

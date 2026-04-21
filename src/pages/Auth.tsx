@@ -159,7 +159,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type="email"
                   placeholder="prenom.nom@universite.edu.sn"
-                  autoComplete="email"
+                  autoComplete="off"
                   value={loginForm.email}
                   onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
                   className={fieldInputClassName}
@@ -174,7 +174,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type={showLoginPassword ? 'text' : 'password'}
                   placeholder="........"
-                  autoComplete="current-password"
+                  autoComplete="off"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                   onKeyDown={(e) => e.key === 'Enter' && !isSubmitting && handleLogin()}
@@ -229,7 +229,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type="text"
                   placeholder="Baye Leyty Mountakha"
-                  autoComplete="name"
+                  autoComplete="off"
                   value={signupForm.fullName}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, fullName: e.target.value }))}
                   className={fieldInputClassName}
@@ -244,7 +244,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type="email"
                   placeholder="prenom.nom@universite.edu.sn"
-                  autoComplete="email"
+                  autoComplete="off"
                   value={signupForm.email}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                   className={fieldInputClassName}
@@ -259,7 +259,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type="text"
                   placeholder="ucad,ugb..."
-                  autoComplete="organization"
+                  autoComplete="off"
                   value={signupForm.university}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, university: e.target.value }))}
                   className={fieldInputClassName}
@@ -299,7 +299,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type="tel"
                   placeholder="221771234567"
-                  autoComplete="tel"
+                  autoComplete="off"
                   value={signupForm.whatsappPhone}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, whatsappPhone: e.target.value }))}
                   className={fieldInputClassName}
@@ -314,7 +314,7 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                 <input
                   type={showSignupPassword ? 'text' : 'password'}
                   placeholder="Min. 8 caracteres"
-                  autoComplete="new-password"
+                  autoComplete="off"
                   value={signupForm.password}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                   onKeyDown={(e) => e.key === 'Enter' && !isSubmitting && handleSignup()}

@@ -159,6 +159,7 @@ export default function ItemList({ authUser, items, likedItemIds, isLoading, onN
         <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 border-2 border-transparent focus-within:border-[#1E63D6] focus-within:bg-white transition-all duration-180 mb-4">
           <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
           <input
+            autoComplete="off"
             type="text"
             placeholder="Rechercher un objet, une catégorie…"
             value={searchQuery}

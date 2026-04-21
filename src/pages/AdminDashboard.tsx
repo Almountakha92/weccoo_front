@@ -361,6 +361,7 @@ export default function AdminDashboard({ onNavigate, onShowToast, adminToken, on
       <div className="mb-4">
         <div className="text-[12px] font-extrabold text-gray-700 mb-1.5">Note de modération (optionnel)</div>
         <input
+          autoComplete="off"
           value={moderationNote}
           onChange={(e) => setModerationNote(e.target.value)}
           placeholder="Ex: photos conformes / description incomplète / hors sujet…"
@@ -461,6 +462,7 @@ export default function AdminDashboard({ onNavigate, onShowToast, adminToken, on
       <div className="mb-3">
         <div className="text-[12px] font-extrabold text-gray-700 mb-1.5">Note (optionnel)</div>
         <input
+          autoComplete="off"
           value={moderationNote}
           onChange={(e) => setModerationNote(e.target.value)}
           placeholder="Ex: OK / Photo floue / Contenu incomplet…"
@@ -581,6 +583,7 @@ export default function AdminDashboard({ onNavigate, onShowToast, adminToken, on
 
             <div className="flex gap-2 mb-4">
               <input
+                autoComplete="off"
                 value={campusName}
                 onChange={(e) => setCampusName(e.target.value)}
                 placeholder="Nom du campus"
@@ -658,24 +661,28 @@ export default function AdminDashboard({ onNavigate, onShowToast, adminToken, on
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               <input
+                autoComplete="off"
                 value={adminForm.fullName}
                 onChange={(e) => setAdminForm((p) => ({ ...p, fullName: e.target.value }))}
                 placeholder="Nom complet"
                 className="px-4 py-2.5 rounded-[14px] border border-gray-200"
               />
               <input
+                autoComplete="off"
                 value={adminForm.university}
                 onChange={(e) => setAdminForm((p) => ({ ...p, university: e.target.value }))}
                 placeholder="Université"
                 className="px-4 py-2.5 rounded-[14px] border border-gray-200"
               />
               <input
+                autoComplete="off"
                 value={adminForm.email}
                 onChange={(e) => setAdminForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="Email"
                 className="px-4 py-2.5 rounded-[14px] border border-gray-200"
               />
               <input
+                autoComplete="off"
                 value={adminForm.password}
                 onChange={(e) => setAdminForm((p) => ({ ...p, password: e.target.value }))}
                 placeholder="Mot de passe (>=8)"

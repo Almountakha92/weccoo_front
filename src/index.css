@@ -126,7 +126,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-announcements-phrase {
-  animation: announcements-phrase 4s ease-in-out both;
+  animation: none;
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+@media (min-width: 640px) {
+  .animate-announcements-phrase {
+    animation: announcements-phrase 4s ease-in-out both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

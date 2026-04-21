@@ -86,6 +86,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">Email</label>
             <input
+              autoComplete="off"
               value={form.email}
               onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="admin@weccoo.sn"
@@ -96,6 +97,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">Mot de passe</label>
             <input
+              autoComplete="off"
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
               type="password"
@@ -107,6 +109,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
           <div>
             <label className="block text-[12px] font-extrabold text-gray-700 mb-1.5">OTP (si déjà activé)</label>
             <input
+              autoComplete="off"
               value={form.otp}
               onChange={(e) => setForm((prev) => ({ ...prev, otp: e.target.value }))}
               placeholder="123456"
@@ -144,6 +147,7 @@ export default function AdminAuth({ onNavigate, onShowToast, onAdminAuthSuccess 
               <div className="mb-3">
                 <div className="text-[12px] font-extrabold text-gray-700 mb-1.5">OTP (depuis l’application)</div>
                 <input
+                  autoComplete="off"
                   value={form.setupOtp}
                   onChange={(e) => setForm((prev) => ({ ...prev, setupOtp: e.target.value }))}
                   placeholder="123456"

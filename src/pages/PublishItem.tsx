@@ -60,7 +60,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
   }
 
   const inputErrorClasses = (hasError: boolean) =>
-    `w-full ${hasError ? 'border-rose-400 bg-rose-50/40 focus:border-rose-500' : 'border-gray-300'}`
+    `w-full ${hasError ? 'border-red-400 bg-red-50/40 focus:border-red-500' : 'border-gray-300'}`
 
   const buildDescription = (base: string) => {
     if (selectedType !== 'echange' && selectedType !== 'pret') return base
@@ -335,7 +335,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
         <div
           onClick={() => filePickerRef.current?.click()}
           className={`border-2 border-dashed rounded-[20px] p-6 sm:p-10 text-center cursor-pointer transition-all duration-200 hover:border-[#1E63D6] hover:bg-[#E8FAF3] mb-2 ${
-            photoError ? 'border-rose-400 bg-rose-50/40' : 'border-gray-300'
+            photoError ? 'border-red-400 bg-red-50/40' : 'border-gray-300'
           }`}
         >
           <Camera className="w-10 h-10 text-gray-400 mx-auto mb-3" />
@@ -365,10 +365,10 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
           </div>
         </div>
         {photoError && (
-          <div className="text-[12.5px] text-rose-600 font-semibold mb-4">{photoError}</div>
+          <div className="text-[12.5px] text-red-600 font-semibold mb-4">{photoError}</div>
         )}
         {cameraError && (
-          <div className="text-[12.5px] text-rose-600 font-semibold mb-4">{cameraError}</div>
+          <div className="text-[12.5px] text-red-600 font-semibold mb-4">{cameraError}</div>
         )}
 
         <input
@@ -468,6 +468,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
         <div className="mb-5.5 border-b border-gray-200 pb-5">
           <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Titre de l'objet</label>
           <input
+            autoComplete="off"
             type="text"
             placeholder="Optionnel : un titre sera genere automatiquement si tu laisses vide"
             value={form.title}
@@ -497,7 +498,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
             <option>Loisirs et Sport</option>
             <option>Divers</option>
           </select>
-          {fieldErrors.category && <div className="mt-1 text-[12.5px] font-semibold text-rose-600">{fieldErrors.category}</div>}
+          {fieldErrors.category && <div className="mt-1 text-[12.5px] font-semibold text-red-600">{fieldErrors.category}</div>}
         </div>
 
         {/* Description */}
@@ -578,7 +579,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
 	                    : `Échange avec autre article${exchangeNeed.trim() ? ` · Besoin: ${exchangeNeed.trim()}` : ''}`}
 	                </div>
 	              )}
-	              {exchangeError && <div className="text-[12px] text-rose-600 font-extrabold mt-1">{exchangeError}</div>}
+	              {exchangeError && <div className="text-[12px] text-red-600 font-extrabold mt-1">{exchangeError}</div>}
 	            </div>
 	            <div className="w-9 h-9 rounded-full bg-white/80 border border-[#F5C400]/20 flex items-center justify-center font-extrabold text-[#F5C400]">
 	              2
@@ -627,6 +628,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
         <div className="mb-5.5">
           <label className="text-[13.5px] font-bold text-[#0F172A] mb-2  block">Zone de remise *</label>
           <input
+            autoComplete="off"
             type="text"
             placeholder="Ex : UCAD 2, bibliotheque universitaire, campus social..."
             value={form.location}
@@ -637,7 +639,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
             }}
             className={`${inputErrorClasses(Boolean(fieldErrors.location))} h-10 px-4 py-3.25 rounded-[12px] border-2 text-[14.5px] text-[#0F172A] font-['Satoshi'] outline-none focus:border-[#2ECC8F] transition-all duration-180 bg-white`}
           />
-          {fieldErrors.location && <div className="mt-1 text-[12.5px] font-semibold text-rose-600">{fieldErrors.location}</div>}
+          {fieldErrors.location && <div className="mt-1 text-[12.5px] font-semibold text-red-600">{fieldErrors.location}</div>}
         </div>
 
         {/* Submit */}
@@ -727,6 +729,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
                 <div className="mt-4">
                   <label className="text-[13.5px] font-bold text-[#0F172A] mb-2 block">Prix (optionnel)</label>
                   <input
+                    autoComplete="off"
                     type="number"
                     inputMode="numeric"
                     min={0}
@@ -744,7 +747,7 @@ export default function PublishItem({ onNavigate, onShowToast, onItemCreated }: 
                 </div>
               )}
 
-              {exchangeError && <div className="text-[12.5px] text-rose-600 font-extrabold mt-3">{exchangeError}</div>}
+              {exchangeError && <div className="text-[12.5px] text-red-600 font-extrabold mt-3">{exchangeError}</div>}
             </div>
 
             <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-3">

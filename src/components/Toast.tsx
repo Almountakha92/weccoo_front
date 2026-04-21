@@ -23,7 +23,9 @@ export default function Toast({ message, type = '', show, onClose }: ToastProps)
   
   const typeClasses = type === 'success' 
     ? "bg-[#2ECC8F] text-white"
-    : "bg-[#0F172A] text-white"
+    : type === 'error'
+      ? "bg-red-600 text-white"
+      : "bg-[#0F172A] text-white"
 
   return (
     <div className={`${baseClasses} ${typeClasses} translate-y-0`}>

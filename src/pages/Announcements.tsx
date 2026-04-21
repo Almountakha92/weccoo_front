@@ -125,18 +125,18 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
           <div className="absolute -top-18 -right-18 w-64 h-64 bg-[radial-gradient(circle,rgba(30,99,214,0.10)_0%,transparent_65%)] rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white rounded-full" />
 
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex flex-col items-start gap-4 sm:flex-row">
             <div className="w-12 h-12 rounded-4 bg-[#FEF3C7] flex items-center justify-center  shrink-0">
               <Megaphone className="w-6 h-6 text-[#F5C400]" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 w-full">
               <div className="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold text-[#1E63D6] bg-[#E8F0FE] border border-[#1E63D6]/10 mb-2">
                 À la une
               </div>
-              <div className="h-[34px] sm:h-[36px] overflow-hidden">
+              <div className="min-h-[unset] sm:min-h-[3.75rem] sm:overflow-hidden">
                 <div
                   key={phraseIndex}
-                  className="font-[Cabinet_Grotesk] text-[22px] sm:text-[24px] font-extrabold text-[#0F172A] leading-tight animate-announcements-phrase"
+                  className="font-[Cabinet_Grotesk] text-[18px] sm:text-[24px] font-extrabold text-[#0F172A] leading-[1.2] animate-announcements-phrase"
                 >
                   {phrases[phraseIndex]}
                 </div>
@@ -263,6 +263,7 @@ export default function Announcements({ authUser, onNavigate }: AnnouncementsPro
             <div>
               <label className="block text-[12px] font-bold text-gray-600 mb-1">Titre</label>
               <input
+                autoComplete="off"
                 value={draftTitle}
                 onChange={(e) => setDraftTitle(e.target.value)}
                 placeholder="Ex: Réunion du club informatique"

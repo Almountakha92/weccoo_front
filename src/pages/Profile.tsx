@@ -69,9 +69,19 @@ export default function Profile({
 }: ProfileProps) {
   const userItems = items.filter((item) => item.ownerId === authUser?.id)
   const publishedCount = userItems.length
+  const approvedCount = userItems.filter((item) => item.moderationStatus === 'approved').length
   const exchangeCount = userItems.filter((item) => item.type === 'echange').length
   const donationCount = userItems.filter((item) => item.type === 'don').length
   const pendingCount = userItems.filter((item) => item.moderationStatus === 'pending').length
+  const totalViews = userItems.reduce((sum, item) => sum + item.viewsCount, 0)
+  const totalLikes = userItems.reduce((sum, item) => sum + item.likesCount, 0)
+  const totalInteractions = totalViews + totalLikes
+  const engagementItem = [...userItems].sort((left, right) => {
+    const leftScore = left.likesCount + left.viewsCount
+    const rightScore = right.likesCount + right.viewsCount
+    return rightScore - leftScore
+  })[0] ?? null
+  const approvalRate = publishedCount === 0 ? 0 : Math.round((approvedCount / publishedCount) * 100)
   const [showAllMyItems, setShowAllMyItems] = React.useState(false)
   const [likesReceived, setLikesReceived] = React.useState<LikeReceivedResponseDto[]>([])
   const [isLikesLoading, setIsLikesLoading] = React.useState(false)
@@ -171,6 +181,7 @@ export default function Profile({
             <h3 className="text-[16px] font-extrabold text-[#0F172A] mb-1">Modifier le numéro WhatsApp</h3>
             <p className="text-[13px] text-gray-500 mb-4">Ex: 221771234567</p>
             <input
+              autoComplete="off"
               value={phoneDraft}
               onChange={(e) => setPhoneDraft(e.target.value)}
               className="w-full px-4 py-3 rounded-[12px] bg-gray-100 border-2 border-transparent focus:border-[#1E63D6] focus:bg-white outline-none text-[14px]"
@@ -209,6 +220,7 @@ export default function Profile({
             <p className="text-[13px] text-gray-500 mb-4">Min. 8 caractères.</p>
             <div className="flex flex-col gap-3">
               <input
+                autoComplete="off"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-[12px] bg-gray-100 border-2 border-transparent focus:border-[#1E63D6] focus:bg-white outline-none text-[14px]"
@@ -216,6 +228,7 @@ export default function Profile({
                 type="password"
               />
               <input
+                autoComplete="off"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-[12px] bg-gray-100 border-2 border-transparent focus:border-[#1E63D6] focus:bg-white outline-none text-[14px]"
@@ -325,6 +338,45 @@ export default function Profile({
       <div className="grid grid-cols-[1fr_340px] gap-6 max-lg:grid-cols-1">
         {/* Left Column */}
         <div>
+          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mb-5">
+            <div className="flex items-start justify-between gap-3 mb-5 max-sm:flex-col">
+              <div>
+                <h2 className="text-[16px] font-extrabold text-[#0F172A]">Interactions et statistiques</h2>
+                <p className="text-[13px] text-gray-500 mt-1">Un aperçu rapide de l’activité générée par vos publications.</p>
+              </div>
+              <div className="px-3 py-1.5 rounded-full bg-[#E8FAF3] text-[#1DA870] text-[12px] font-extrabold">
+                {formatCount(totalInteractions)} interactions au total
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3.5 max-md:grid-cols-1">
+              <div className="rounded-[18px] border border-[#DBEAFE] bg-[#F8FBFF] p-4">
+                <div className="text-[12px] font-bold uppercase tracking-wide text-[#1E63D6]">Vues cumulées</div>
+                <div className="text-[28px] font-[Cabinet_Grotesk] font-extrabold text-[#0F172A] mt-2">{formatCount(totalViews)}</div>
+                <div className="text-[13px] text-gray-500 mt-1">Nombre de consultations sur vos objets.</div>
+              </div>
+              <div className="rounded-[18px] border border-[#FDE7EA] bg-[#FFF8F8] p-4">
+                <div className="text-[12px] font-bold uppercase tracking-wide text-rose-500">J’aime reçus</div>
+                <div className="text-[28px] font-[Cabinet_Grotesk] font-extrabold text-[#0F172A] mt-2">{formatCount(totalLikes)}</div>
+                <div className="text-[13px] text-gray-500 mt-1">Intérêt actuel sur l’ensemble de vos publications.</div>
+              </div>
+              <div className="rounded-[18px] border border-[#D1FAE5] bg-[#F3FDF8] p-4">
+                <div className="text-[12px] font-bold uppercase tracking-wide text-[#1DA870]">Publication la plus active</div>
+                <div className="text-[18px] font-extrabold text-[#0F172A] mt-2 truncate">
+                  {engagementItem?.title ?? 'Aucune publication'}
+                </div>
+                <div className="text-[13px] text-gray-500 mt-1">
+                  {engagementItem ? `${engagementItem.viewsCount} vues · ${engagementItem.likesCount} j'aime` : 'Publiez un objet pour commencer à suivre vos performances.'}
+                </div>
+              </div>
+              <div className="rounded-[18px] border border-[#FEF3C7] bg-[#FFFBEF] p-4">
+                <div className="text-[12px] font-bold uppercase tracking-wide text-[#B45309]">Taux de validation</div>
+                <div className="text-[28px] font-[Cabinet_Grotesk] font-extrabold text-[#0F172A] mt-2">{approvalRate}%</div>
+                <div className="text-[13px] text-gray-500 mt-1">{formatCount(approvedCount)} publication(s) validée(s) par l’administration.</div>
+              </div>
+            </div>
+          </div>
+
 	          {/* My Items */}
 	          <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mb-5">
 	            <div className="flex items-center justify-between mb-4">
@@ -407,7 +459,8 @@ export default function Profile({
         <div>
           {/* Reviews */}
           <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_24px_rgba(15,23,42,0.08)] mb-5">
-            <h2 className="text-[16px] font-extrabold text-[#0F172A] mb-4">Avis reçus</h2>
+            <h2 className="text-[16px] font-extrabold text-[#0F172A] mb-1">Interactions récentes</h2>
+            <p className="text-[13px] text-gray-500 mb-4">Les derniers étudiants qui ont réagi à vos objets.</p>
 
             {isLikesLoading && <div className="text-[13px] text-gray-500">Chargement des interactions...</div>}
 
