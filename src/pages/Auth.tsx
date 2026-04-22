@@ -51,6 +51,14 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const normalizeCampusLabel = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase()
+
   const handleLogin = async () => {
     if (!loginForm.email.trim() || !loginForm.password.trim()) {
       onShowToast('Renseigne ton email et ton mot de passe.', 'error')
@@ -79,6 +87,18 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
     if (!parsed.success) {
       const firstIssue = parsed.error.issues[0]
       onShowToast(firstIssue?.message ?? 'Formulaire invalide.', 'error')
+      return
+    }
+
+    const selectedCampus = campuses.find((campus) => campus.id === parsed.data.campusId)
+
+    if (!selectedCampus) {
+      onShowToast('Campus introuvable. Recharge la page puis reessaie.', 'error')
+      return
+    }
+
+    if (normalizeCampusLabel(parsed.data.university) !== normalizeCampusLabel(selectedCampus.name)) {
+      onShowToast(`L'universite / ecole doit correspondre au campus selectionne : ${selectedCampus.name}.`, 'error')
       return
     }
 
@@ -274,6 +294,11 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
                   className={fieldInputClassName}
                 />
               </div>
+              {signupForm.campusId && (
+                <div className="text-[12px] text-gray-500 mt-1">
+                  Le nom saisi doit etre identique au campus choisi.
+                </div>
+              )}
             </div>
 
             <div className="mb-4.5">
