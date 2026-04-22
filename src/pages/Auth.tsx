@@ -98,11 +98,20 @@ export default function Auth({ onNavigate, onShowToast, onAuthSuccess }: AuthPro
       }
 
       const response = await signup(parsed.data)
-      setAuthToken(response.data.token)
-      setAuthUser(response.data.user)
-      onAuthSuccess(response.data)
-      onShowToast(`${response.message} Bienvenue ${response.data.user.fullName}`, 'success')
-      setTimeout(() => onNavigate('home'), 900)
+      setActiveTab('login')
+      setLoginForm({
+        email: parsed.data.email,
+        password: ''
+      })
+      setSignupForm({
+        fullName: '',
+        university: '',
+        email: '',
+        whatsappPhone: '',
+        password: '',
+        campusId: ''
+      })
+      onShowToast(`${response.message} Connecte-toi maintenant pour acceder a ton compte.`, 'success')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erreur de connexion au serveur.'
       onShowToast(message, 'error')
